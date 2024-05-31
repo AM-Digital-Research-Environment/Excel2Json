@@ -7,7 +7,6 @@ Created on Wed Dec 13 15:40:25 2023
 
 # Libraries
 
-import pymongo
 from pymongo import MongoClient
 import json
 import pandas as pd
@@ -15,15 +14,13 @@ import numpy as np
 import re
 
 # Class for cleaning up data and changing the field names
-
-class MDES_CleanUp():
-
+class MDES_CleanUp:
     def __init__(self, sheet_path):
-        self.tabs = self.mongo_dictCollection_auth().find_one({"name":'Tab Names'})['tabs'].values()
-        self.fields = pd.DataFrame(self.mongo_dictCollection_auth().find_one({"name":'Field Names by Excel Table Tabs'})['tabs'])
+        self.tabs = self.mongo_dictCollection_auth().find_one({"name": 'Tab Names'})['tabs'].values()
+        self.fields = pd.DataFrame(self.mongo_dictCollection_auth().find_one({"name": 'Field Names by Excel Table Tabs'})['tabs'])
         self.sheet_path = sheet_path
-        self.get_sec_level = lambda x : re.search('(?<=\[).*?(?=\])', x)[0]
-        self.resource_clean = lambda x : x.split(' (')[0] 
+        self.get_sec_level = lambda x: re.search('(?<=\[).*?(?=\])', x)[0]
+        self.resource_clean = lambda x: x.split(' (')[0]
 
     def Sheet_CleanUp(self, tab):
         data = pd.read_excel(self.sheet_path, sheet_name=tab, header=None)
@@ -50,9 +47,9 @@ class MDES_CleanUp():
     
 ###############################################################################
 
-    ## Misc. Functions
+    # Misc. Functions
     
-    def extract_json_data(self,path):
+    def extract_json_data(self, path):
         f = open(path)
         contents = json.load(f)
         f.close()
