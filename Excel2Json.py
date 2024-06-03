@@ -37,7 +37,9 @@ class ExportJson:
                 # Collection
                 'isCollection': self.boolclean(row['collection']),
                 # Sponsor
-                'sponsor': self.list_cleanup(row['sponsor'], [])}
+                'sponsor': self.list_cleanup(row['sponsor'], []),
+                # Project
+                'project': {'id': row.project_id, 'name': row.project_name}}
 
             # Title(s)
             
