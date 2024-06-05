@@ -39,7 +39,11 @@ class ExportJson:
                 # Sponsor
                 'sponsor': self.list_cleanup(row['sponsor'], []),
                 # Project
-                'project': {'id': row.project_id, 'name': row.project_name}}
+                'project': {'id': row.project_id, 'name': row.project_name},
+                # Citation
+                'citation': row['citation]
+            
+            }
 
             # Title(s)
             
