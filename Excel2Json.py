@@ -31,12 +31,13 @@ class ExportJson:
                 # Internal ID (Format 3-Letter Project ID - DSpace Instance/ Storage Location - Index ID)
                 'dre_id': self.project_Id + "-" + self.set_default(value=row.user_rights, exception="No Raw Data",
                                                                    default_value='99',
-                                                                   return_value=self.dspace_Id) + "-" + format(i, '04x'),
-                #Bitstream
+                                                                   return_value=self.dspace_Id) + "-" + format(i,
+                                                                                                               '04x'),
+                # Bitstream
                 'bitstream': self.set_default(
                     value=row.user_rights, exception="No Raw Data",
-                    default_value=row['bitstream'].
-                    retrun_value=null
+                    default_value=row['bitstream'],
+                    return_value=None
                 ),
                 # Security Level
                 'security': row['security_level'],
@@ -213,7 +214,7 @@ class ExportJson:
         
         return json_list
             
-###############################################################################        
+    # Auxiliary Functions
     def list_cleanup(self, list_string, exception):
         try:
             return list(filter(None, [l.strip() for l in list_string.split(self.delimiter)]))
