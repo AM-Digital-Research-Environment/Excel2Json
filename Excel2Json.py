@@ -41,9 +41,9 @@ class ExportJson:
                 # Project
                 'project': {'id': row.project_id, 'name': row.project_name},
                 # Citation
-                'citation': [row['citation]],
+                'citation': self.list_cleanup(row['citation'], []),
                 # Url
-                'url': [row['url']]
+                'url': self.list_cleanup(row['url'], [])
             }
 
             # Title(s)
