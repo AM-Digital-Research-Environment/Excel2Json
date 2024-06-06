@@ -32,8 +32,14 @@ class ExportJson:
                 'dre_id': self.project_Id + "-" + self.set_default(value=row.user_rights, exception="No Raw Data",
                                                                    default_value='99',
                                                                    return_value=self.dspace_Id) + "-" + format(i, '04x'),
+                #Bitstream
+                'bitstream': self.set_default(
+                    value=row.user_rights, exception="No Raw Data",
+                    default_value=row['bitstream'].
+                    retrun_value=null
+                ),
                 # Security Level
-                'bitstream': row.filename, 'security': row['security_level'],
+                'security': row['security_level'],
                 # Collection
                 'isCollection': self.boolclean(row['collection']),
                 # Sponsor
