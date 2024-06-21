@@ -21,7 +21,7 @@ For data uploads on to MongoDB, please the following steps after generating the 
 >*collection = client['name-of-db']['name-of-collection']*  
 >
 >*for doc in data:*   
->&nbsp;&nbsp;&nbsp;*doc['createdAt'] = datetime.now()*  
->    *doc['updatedAt'] = datetime.now()*  
->    *doc['updatedBy'] = "your-initails"*  
->    *collection.insert_one(doc)*  
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*doc['createdAt'] = datetime.now()*  
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*doc['updatedAt'] = datetime.now()*  
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*doc['updatedBy'] = "your-initails"*  
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*collection.insert_one(doc)*  
