@@ -15,11 +15,13 @@ Here, the *project_id* is the three letter ID allocated to each project and *dsp
 
 For data uploads on to MongoDB, please the following steps after generating the data variable,
 
->from pymongo import MongoClient  
->client = MongoClient('your-personal-mongodb-connection-string')  
->collection = client['name-of-db']['name-of-collection']  
->for doc in data:  
->    doc['createdAt'] = datetime.now()  
->    doc['updatedAt'] = datetime.now()  
->    doc['updatedBy'] = "your-initails"  
->    collection.insert_one(doc)  
+>*from pymongo import MongoClient*
+>  
+>*client = MongoClient('your-personal-mongodb-connection-string')*  
+>*collection = client['name-of-db']['name-of-collection']*  
+>
+>*for doc in data:*   
+>    *doc['createdAt'] = datetime.now()*  
+>    *doc['updatedAt'] = datetime.now()*  
+>    *doc['updatedBy'] = "your-initails"*  
+>    *collection.insert_one(doc)*  
