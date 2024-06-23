@@ -5,7 +5,7 @@ Repo for the metadata excel table clean-up and parsing script
 The following .py files serve the following functions:
 
 - **Excel2Json.py**  
-This document contains ExportJson class which can be used to convert DRE standard metadata Excel sheet to a json list. The example is shows how perform document export:
+This document contains the ExportJson class which can be used to convert a DRE standard metadata Excel sheet to a JSON list. The example shows how to perform document export:
 >*from Excel2Json import ExportJson*
 > 
 > *file_path = r"path-to-your-file"*  
@@ -30,15 +30,15 @@ For data uploads on to MongoDB, please the following steps after generating the 
 - **ValueSync.py**  
 This document to can be used to update the *'persons'* and *'institutions'* collections in DRE MongoDB.
 
-Follow the below directions to performing updates.    
+Follow the below directions to perform updates.    
 
-*BE SURE TO CHECK CONSISTENCY & CORRECTNESS OF VALUES IN METADATA EXCELSHEET BEFORE PERFORMING THE UPDATES.*
+*BE SURE TO CHECK CONSISTENCY & CORRECTNESS OF VALUES IN THE METADATA EXCEL SHEET BEFORE PERFORMING THE UPDATES.*
 
 Importing Library
 >
 > *from ValueSync import ValueList*
 >
-Instantiating Class (here, we will use the example of persons collection)
+Instantiating Class (here, we will use the example of *'persons'* collection)
 >
 > *persons = ValueList('your-personal-mongodb-connection-string','db_name','collection_name','persons')*
 >
@@ -46,7 +46,7 @@ To see distinct values in the referenced collection
 >
 > *persons.in_collection()*
 >
-To see values missing MongoDB persons collection
+To see values missing MongoDB *'persons'* collection
 >
 > *persons.check_missing()*
 > 
