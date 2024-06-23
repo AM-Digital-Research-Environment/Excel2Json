@@ -24,6 +24,7 @@ class ValueList:
         else:
             pass
 
+    # Function to see to missing values
     def check_missing(self):
         missing_value = []
         update_coll_list = list(self._update_col.distinct("name"))
@@ -37,6 +38,7 @@ class ValueList:
         else:
             return missing_value
 
+    # Function to synchronise values
     def synchronise(self):
         for missing_value in self.check_missing():
             self._update_col.insert_one({"name": missing_value})
