@@ -40,7 +40,7 @@ Importing Library
 >
 Instantiating Class (here, we will use the example of *'persons'* collection)
 >
-> *persons = ValueList('your-personal-mongodb-connection-string','db_name','collection_name','persons')*
+> *persons = ValueList('your-personal-mongodb-connection-string', 'db_name', 'collection_name', 'persons')*
 >
 To see distinct values in the referenced collection
 >
