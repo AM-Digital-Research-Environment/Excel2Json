@@ -24,4 +24,33 @@ For data uploads on to MongoDB, please the following steps after generating the 
 >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*doc['createdAt'] = datetime.now()*  
 >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*doc['updatedAt'] = datetime.now()*  
 >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*doc['updatedBy'] = "your-initails"*  
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*collection.insert_one(doc)*  
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*collection.insert_one(doc)*
+
+
+- **ValueSync.py**  
+This document to can be used to update the *'persons'* and *'institutions'* collections in DRE MongoDB.
+
+Follow the below directions to performing updates.    
+
+*BE SURE TO CHECK CONSISTENCY & CORRECTNESS OF VALUES IN METADATA EXCELSHEET BEFORE PERFORMING THE UPDATES.*
+
+Importing Library
+>
+> *from ValueSync import ValueList*
+>
+Instantiating Class (here, we will use the example of persons collection)
+>
+> *persons = ValueList('your-personal-mongodb-connection-string','db_name','collection_name','persons')*
+>
+To see distinct values in the referenced collection
+>
+> *persons.in_collection()*
+>
+To see values missing MongoDB persons collection
+>
+> *persons.check_missing()*
+> 
+To update persons collection with missing values
+>
+> *persons.synchronise()*
+> 
