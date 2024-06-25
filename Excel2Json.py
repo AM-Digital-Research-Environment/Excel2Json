@@ -14,10 +14,14 @@ from dev.ExcelCleaner import MDES_CleanUp
 
 
 class ExportJson:
-    
-    def __init__(self, file_path, project_id, dspace_id):
+
+    # File can be path string or the dataframe object
+    def __init__(self, file: str | object, project_id, dspace_id):
         # Input given is project ID, default DSpace instance
-        self.data = MDES_CleanUp(file_path).execute()
+        if isinstance(file, str):
+            self.data = MDES_CleanUp(file).execute()
+        elif isinstance(file, object):
+            self.data = file
         self.project_Id = project_id
         self.dspace_Id = dspace_id
         self.delimiter = ';'
