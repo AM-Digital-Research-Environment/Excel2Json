@@ -40,8 +40,8 @@ class ExportJson:
                 # Bitstream
                 'bitstream': self.set_default(
                     value=row.user_rights, exception="No Raw Data",
-                    default_value=row['filename'],
-                    return_value=[]
+                    default_value=[],
+                    return_value=row['filename']
                 ),
                 # Security Level
                 'security': row['security_level'],
