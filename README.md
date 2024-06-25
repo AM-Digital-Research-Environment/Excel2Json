@@ -15,7 +15,7 @@ Here, the *project_id* is the three letter ID allocated to each project and *dsp
 
 For data uploads on to MongoDB, please the following steps after generating the data variable,
 
->*from pymongo import MongoClient*
+>*from pymongo import MongoClient*  
 > *from datetime import datetime*
 >  
 >*client = MongoClient('your-personal-mongodb-connection-string')*  
@@ -51,7 +51,7 @@ To see values missing MongoDB *'persons'* collection
 >
 > *persons.check_missing()*
 > 
-To update persons collection with missing values
+To update "persons" collection with missing values
 >
 > *persons.synchronise()*
 > 
