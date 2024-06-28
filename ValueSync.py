@@ -1,5 +1,6 @@
 # Libraries
 from pymongo import MongoClient
+import pandas as pd
 
 
 class ValueList:
@@ -20,6 +21,7 @@ class ValueList:
             for institute in range(len(institutions)):
                 for name in [x.strip() for x in list(filter(None, institutions[institute].split(';')))]:
                     institution_list.append(name)
+            institution_list = [val for val in institution_list if not pd.isna(val)]
             return list(set(institution_list))
         else:
             pass
@@ -33,6 +35,7 @@ class ValueList:
                 missing_value.append(entity_value)
             else:
                 pass
+        missing_value = [val for val in missing_value if not pd.isna(val)]
         if len(missing_value) == 0:
             return "No new values to update."
         else:
