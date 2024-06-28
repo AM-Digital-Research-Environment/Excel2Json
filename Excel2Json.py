@@ -66,6 +66,7 @@ class ExportJson:
                 title = all_title.filter(regex=f'_{tType}')
                 title.index = [c.replace(f'_{tType}', '') for c in title.index]
                 if not pd.isna(title['title']):
+                    title['name'] = title['title'].strip()
                     title_list.append(title.to_dict())
                 else:
                     continue                
@@ -93,6 +94,7 @@ class ExportJson:
                 role = all_role.filter(regex=f'_{rtype}$')
                 role.index = [c.replace(f'_{rtype}', '') for c in role.index]
                 if not pd.isna(role['name']):
+                    role['name'] = role['name'].strip()
                     role_list.append(role.to_dict())
                 else:
                     continue
