@@ -19,8 +19,11 @@ class ValueList:
             # Cleaning list
             institution_list = []
             for institute in range(len(institutions)):
-                for name in [x.strip() for x in list(filter(None, institutions[institute].split(';')))]:
-                    institution_list.append(name)
+                if institutions[institute] is not None and not pd.isna(institutions[institute]):
+                    for name in [x.strip() for x in list(filter(None, institutions[institute].split(';')))]:
+                        institution_list.append(name)
+                else:
+                    pass
             institution_list = [val for val in institution_list if not pd.isna(val)]
             return list(set(institution_list))
         else:
