@@ -66,7 +66,7 @@ class ExportJson:
                 title = all_title.filter(regex=f'_{tType}')
                 title.index = [c.replace(f'_{tType}', '') for c in title.index]
                 if not pd.isna(title['title']):
-                    title['name'] = title['title'].strip()
+                    title['title'] = str(title['title']).strip()
                     title_list.append(title.to_dict())
                 else:
                     continue                
