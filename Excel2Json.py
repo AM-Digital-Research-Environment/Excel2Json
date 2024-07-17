@@ -137,16 +137,29 @@ class ExportJson:
             # Location 
             
             # Origin
-            
+            origin_list = []
+
             origin = row.filter(like='loc_')
             origin.index = [col.replace('loc_origin_', '') for col in origin.index]
-            origin = origin.to_dict()
+            for f in origin.index:
+                try:
+                    origin[f] = list(map(lambda x: x.replace('99', ""), self.list_cleanup(origin[f], [])))
+                except TypeError:
+                    pass
+            if range(len(origin['l1'])) == 1:
+                origin_list = [origin.to_dict()]
+            else:
+                for n in range(len(origin['l1'])):
+                    origin_dict = {"l1": origin['l1'][n],
+                                   "l2": origin['l2'][n] if len(origin['l2']) >= n + 1 else np.nan,
+                                   "l3": origin['l3'][n] if len(origin['l2']) >= n + 1 else np.nan}
+                    origin_list.append(origin_dict)
             
             # Current Location
             
             current_loc = self.list_cleanup(row['current_location'], [])
             
-            data_dict['location'] = {'origin': origin, 'current': current_loc}
+            data_dict['location'] = {'origin': origin_list, 'current': current_loc}
             
             # Access Condition
             
@@ -277,4 +290,3 @@ class ExportJson:
             return 0
         else:
             return None
-            
