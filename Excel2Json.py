@@ -151,8 +151,8 @@ class ExportJson:
             else:
                 for n in range(len(origin['l1'])):
                     origin_dict = {"l1": origin['l1'][n],
-                                   "l2": origin['l2'][n] if len(origin['l2']) >= n + 1 else np.nan,
-                                   "l3": origin['l3'][n] if len(origin['l2']) >= n + 1 else np.nan}
+                                   "l2": origin['l2'][n] if len(origin['l2']) >= n + 1 and origin['l2'][n] != "" else np.nan,
+                                   "l3": origin['l3'][n] if len(origin['l3']) >= n + 1 and origin['l3'][n] != "" else np.nan}
                     origin_list.append(origin_dict)
             
             # Current Location
