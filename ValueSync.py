@@ -2,6 +2,7 @@
 from typing import Any, List
 from pymongo import MongoClient
 import pandas as pd
+from wasabi import Printer
 import warnings
 
 
@@ -29,6 +30,7 @@ class ValueList(object):
         self._dev_list = dev_list
         self._ref_col = self._client[db_name][col_name]
         self._update_col = self._client['dev'][dev_list]
+        self._printer = Printer()
 
     # Persons in reference collection
     def in_collection(self) -> List[Any]:
@@ -37,35 +39,42 @@ class ValueList(object):
         elif self._dev_list == 'institutions':
             institutions = list(self._ref_col.distinct("name.affl"))
             # Cleaning list
-            institution_list = []
+            out = []
             for institute in institutions:
-                if institute is not None and not pd.isna(institute):
-                    for name in [x.strip() for x in list(filter(None, institute.split(';')))]:
-                        institution_list.append(name)
-                else:
-                    return []
-            institution_list = [val for val in institution_list if not pd.isna(val)]
-            return list(set(institution_list))
+                if institute and not pd.isna(institute):
+                    names = institute.split(';')
+                    names = map(lambda x: x.strip(), names)
+                    # "None" will remove anything that evaluates to False
+                    names = filter(None, names)
+                    out.extend(names)
+
+            return list(set(out))
         else:
             return []
 
     # Function to see to missing values
     def check_missing(self):
-        missing_value = []
+        missing_values = []
         update_coll_list = list(self._update_col.distinct("name"))
         for entity_value in self.in_collection():
             if entity_value not in update_coll_list:
-                missing_value.append(entity_value)
-            else:
-                pass
-        missing_value = [val for val in missing_value if not pd.isna(val)]
-        if len(missing_value) == 0:
-            return "No new values to update."
-        else:
-            return missing_value
+                missing_values.append(entity_value)
+
+        missing_values = [val for val in missing_values if not pd.isna(val)]
+        if len(missing_values) == 0:
+            self._printer.info("No new values to update.")
+            return []
+
+        return missing_values
 
     # Function to synchronise values
-    def synchronise(self):
-        for missing_value in self.check_missing():
-            self._update_col.insert_one({"name": missing_value})
-        return "Successfully Synchronised!"
+    def synchronise(self) -> bool:
+        insert = [{"name": val} for val in self.check_missing()]
+        result = self._update_col.insert_many(insert)
+
+        if len(result.inserted_ids) != len(insert):
+            self._printer.fail("Not all requested documents were inserted!")
+            return False
+
+        self._printer.good("Successfully Synchronised!")
+        return True
