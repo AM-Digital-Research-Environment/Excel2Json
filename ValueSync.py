@@ -2,6 +2,7 @@
 from typing import Any, List
 from pymongo import MongoClient
 import pandas as pd
+import re
 from wasabi import Printer
 import warnings
 
@@ -30,6 +31,7 @@ class ValueList(object):
         self._dev_list = dev_list
         self._ref_col = self._client[db_name][col_name]
         self._update_col = self._client['dev'][dev_list]
+        self._qualifiers = ["[institution]"]
         self._printer = Printer()
 
     # Persons in reference collection
@@ -37,6 +39,8 @@ class ValueList(object):
         if self._dev_list == 'persons':
             return list(self._ref_col.distinct("name.name"))
         elif self._dev_list == 'institutions':
+            # First pass: get all proper affiliations
+
             institutions = list(self._ref_col.distinct("name.affl"))
             # Cleaning list
             out = []
@@ -48,7 +52,15 @@ class ValueList(object):
                     names = filter(None, names)
                     out.extend(names)
 
+            # Second pass: get all names containing an "institution qualifier"
+            names = self._ref_col.distinct("name.name")
+
+            qualifiers_pattern = re.compile('|'.join(map(re.escape, self._qualifiers)))
+            names_cleaned = [qualifiers_pattern.sub('', name).strip() for name in names if qualifiers_pattern.search(name)]
+            out.extend(names_cleaned)
+
             return list(set(out))
+
         else:
             return []
 
