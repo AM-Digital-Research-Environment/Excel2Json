@@ -46,7 +46,7 @@ class MDES_CleanUp(object):
     def dictionaries_collection(self) -> MongoCollection:
         return self.client.dev['dictionaries']
 
-    def Sheet_CleanUp(self, tab):
+    def Sheet_CleanUp(self, tab) -> pd.DataFrame:
         data = pd.read_excel(self.sheet_path, sheet_name=tab, header=None)
         data = data.iloc[data.loc[data.iloc[:,0] == 1].index[0]:,:].reset_index(drop=True)
         data.columns = self.fields[tab].dropna().values

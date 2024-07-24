@@ -2,12 +2,31 @@
 from typing import Any, List
 from pymongo import MongoClient
 import pandas as pd
+import warnings
 
 
 class ValueList(object):
-    def __init__(self, auth_string: str, db_name: str, col_name: str, dev_list: str):
+    def __init__(self, auth_string: str | None, db_name: str, col_name: str, dev_list: str, client: MongoClient | None = None):
+
+        if auth_string is not None:
+            warnings.warn(
+                "Passing the 'auth_string'-parameter to ValueList() is deprecated. "
+                "Pass an authenticated MongoClient in the 'client'-parameter instead",
+                DeprecationWarning,
+                stacklevel=2
+            )
+
+            if client is not None:
+                raise ValueError("Cannot specify both 'auth_string' and 'client'. Only pass 'client'.")
+
+            self._client = MongoClient(auth_string)
+
+        if client is None:
+            raise ValueError("The 'client'-parameter is required.")
+
+        self._client = client
+
         self._dev_list = dev_list
-        self._client = MongoClient(auth_string)
         self._ref_col = self._client[db_name][col_name]
         self._update_col = self._client['dev'][dev_list]
 
@@ -19,9 +38,9 @@ class ValueList(object):
             institutions = list(self._ref_col.distinct("name.affl"))
             # Cleaning list
             institution_list = []
-            for institute in range(len(institutions)):
-                if institutions[institute] is not None and not pd.isna(institutions[institute]):
-                    for name in [x.strip() for x in list(filter(None, institutions[institute].split(';')))]:
+            for institute in institutions:
+                if institute is not None and not pd.isna(institute):
+                    for name in [x.strip() for x in list(filter(None, institute.split(';')))]:
                         institution_list.append(name)
                 else:
                     return []
