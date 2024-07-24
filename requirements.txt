@@ -1,3 +1,18 @@
-pandas>=2.2.2
-numpy>=1.26.4
-pymongo>=4.7.3
+dnspython==2.6.1
+    # via pymongo
+et-xmlfile==1.1.0
+    # via openpyxl
+numpy==2.0.1
+    # via pandas
+openpyxl==3.1.5
+pandas==2.2.2
+pymongo==4.8.0
+python-dateutil==2.9.0.post0
+    # via pandas
+pytz==2024.1
+    # via pandas
+six==1.16.0
+    # via python-dateutil
+tzdata==2024.1
+    # via pandas
+wasabi==1.1.3
