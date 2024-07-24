@@ -10,16 +10,18 @@ import pandas as pd
 import numpy as np
 import re
 from datetime import datetime
+
+from pymongo import MongoClient
 from dev.ExcelCleaner import MDES_CleanUp
 
 
-class ExportJson:
+class ExportJson(object):
 
     # File can be path string or the dataframe object
-    def __init__(self, file: str | object, project_id, dspace_id):
+    def __init__(self, file: str | object, project_id, dspace_id, mongo_client: MongoClient | None = None):
         # Input given is project ID, default DSpace instance
         if isinstance(file, str):
-            self.data = MDES_CleanUp(file).execute()
+            self.data = MDES_CleanUp(file, mongo_client=mongo_client).execute()
         elif isinstance(file, object):
             self.data = file
         self.project_Id = project_id
