@@ -1,17 +1,18 @@
 # Libraries
+from typing import Any, List
 from pymongo import MongoClient
 import pandas as pd
 
 
-class ValueList:
-    def __init__(self, auth_string, db_name, col_name, dev_list):
+class ValueList(object):
+    def __init__(self, auth_string: str, db_name: str, col_name: str, dev_list: str):
         self._dev_list = dev_list
         self._client = MongoClient(auth_string)
         self._ref_col = self._client[db_name][col_name]
         self._update_col = self._client['dev'][dev_list]
 
     # Persons in reference collection
-    def in_collection(self):
+    def in_collection(self) -> List[Any]:
         if self._dev_list == 'persons':
             return list(self._ref_col.distinct("name.name"))
         elif self._dev_list == 'institutions':
@@ -23,11 +24,11 @@ class ValueList:
                     for name in [x.strip() for x in list(filter(None, institutions[institute].split(';')))]:
                         institution_list.append(name)
                 else:
-                    pass
+                    return []
             institution_list = [val for val in institution_list if not pd.isna(val)]
             return list(set(institution_list))
         else:
-            pass
+            return []
 
     # Function to see to missing values
     def check_missing(self):
