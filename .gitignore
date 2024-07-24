@@ -9,3 +9,5 @@ wheels/
 # venv
 .venv
 /.dir-locals.el
+/examples/*.xls
+/examples/*.xlsx
