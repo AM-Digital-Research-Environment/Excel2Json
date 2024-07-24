@@ -90,7 +90,7 @@ class ExportJson(object):
             # Roles
             
             role_list = []
-            all_role = row.filter(regex='name_\d+$|role_\d+$|affl_\d+$')
+            all_role = row.filter(regex=r'name_\d+$|role_\d+$|affl_\d+$')
             
             for rtype in range(1, int(len(all_role.index)/3)+1):
                 role = all_role.filter(regex=f'_{rtype}$')
@@ -124,7 +124,7 @@ class ExportJson(object):
             # Identifiers
             
             identifiers = []
-            ids = row.filter(regex='identifier_\d+$|identifier_type_\d+$')
+            ids = row.filter(regex=r'identifier_\d+$|identifier_type_\d+$')
             
             for n in range(1, int(len(ids.index)/2)*1):
                 id_n = ids.filter(regex=f'identifier_{n}$|identifier_type_{n}$')
