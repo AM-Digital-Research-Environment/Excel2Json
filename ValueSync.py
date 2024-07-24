@@ -82,6 +82,10 @@ class ValueList(object):
     # Function to synchronise values
     def synchronise(self) -> bool:
         insert = [{"name": val} for val in self.check_missing()]
+        if len(insert) == 0:
+            self._printer.info("No documents found to insert.")
+            return True
+
         result = self._update_col.insert_many(insert)
 
         if len(result.inserted_ids) != len(insert):
