@@ -13,7 +13,8 @@ Repo for the metadata excel table clean-up and parsing script
 ## Description
 The following .py files serve the following functions:
 
-- **Excel2Json.py**
+### `Excel2Json.py`
+
 This document contains the ExportJson class which can be used to convert a DRE standard metadata Excel sheet to a JSON list.
 The example shows how to perform document export (see also [the example script](example_insert.py)):
 
@@ -49,7 +50,8 @@ for doc in data:
 ```
 
 
-- **ValueSync.py**
+### `ValueSync.py`
+
 This document to can be used to update the `persons` and `institutions` collections in DRE MongoDB.
 
 Follow the below directions to perform updates (also see [the example script](example_sync.py)):
@@ -82,6 +84,45 @@ print(persons.check_missing())
 
 # update collection with missing values
 print(persons.synchronise())
+```
+
+### `cli.py`
+
+This is a CLI wrapper for the "insert" and "sync" operations.
+
+#### `cli.py insert`
+
+Run with `python cli.py insert --help` to get an overview for the required arguments.
+This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
+The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
+
+##### Example
+
+``` shell
+$ python cli.py insert \
+    --connection mongodb://root:example@mongo \
+    --target projects_metadata_ubt_TEST.sample_project \
+    -project-id aaa \
+    -dspace-id 01 \
+    --dry-run \
+    sample.xlsx
+```
+
+
+#### `cli.py sync`
+
+Run with `python cli.py insert --help` to get an overview for the required arguments.
+This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
+The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
+
+##### Example
+
+``` shell
+$ python cli.py sync \
+    --connection mongodb://root:example@mongo \
+    --from projects_metadata_ubt_TEST.sample_project \
+    --target persons \
+    --dry-run
 ```
 
 ## LoC Subject Headings
