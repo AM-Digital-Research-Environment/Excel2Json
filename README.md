@@ -15,7 +15,7 @@ The following .py files serve the following functions:
 
 - **Excel2Json.py**
 This document contains the ExportJson class which can be used to convert a DRE standard metadata Excel sheet to a JSON list.
-The example shows how to perform document export (see also [the example script](examples/example_insert.py)):
+The example shows how to perform document export (see also [the example script](example_insert.py)):
 
 ``` python
 from Excel2Json import ExportJson
@@ -52,7 +52,7 @@ for doc in data:
 - **ValueSync.py**
 This document to can be used to update the `persons` and `institutions` collections in DRE MongoDB.
 
-Follow the below directions to perform updates (also see [the example script](examples/example_sync.py)):
+Follow the below directions to perform updates (also see [the example script](example_sync.py)):
 
 **BE SURE TO CHECK CONSISTENCY & CORRECTNESS OF VALUES IN THE METADATA EXCEL SHEET BEFORE PERFORMING THE UPDATES.**
 
