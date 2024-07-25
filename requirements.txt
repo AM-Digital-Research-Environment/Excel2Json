@@ -1,7 +1,13 @@
+certifi==2024.7.4
+    # via requests
+charset-normalizer==3.3.2
+    # via requests
 dnspython==2.6.1
     # via pymongo
 et-xmlfile==1.1.0
     # via openpyxl
+idna==3.7
+    # via requests
 numpy==2.0.1
     # via pandas
 openpyxl==3.1.5
@@ -11,8 +17,11 @@ python-dateutil==2.9.0.post0
     # via pandas
 pytz==2024.1
     # via pandas
+requests==2.32.3
 six==1.16.0
     # via python-dateutil
 tzdata==2024.1
     # via pandas
+urllib3==2.2.2
+    # via requests
 wasabi==1.1.3
