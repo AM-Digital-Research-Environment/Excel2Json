@@ -7,22 +7,46 @@ Created on Wed Dec 13 15:40:25 2023
 
 # Libraries
 
+from typing import Any
 from pymongo import MongoClient
+from pymongo.collection import Collection as MongoCollection
 import json
 import pandas as pd
 import numpy as np
 import re
+import os
 
-# Class for cleaning up data and changing the field names
-class MDES_CleanUp:
-    def __init__(self, sheet_path):
-        self.tabs = self.mongo_dictCollection_auth().find_one({"name": 'Tab Names'})['tabs'].values()
-        self.fields = pd.DataFrame(self.mongo_dictCollection_auth().find_one({"name": 'Field Names by Excel Table Tabs'})['tabs'])
+
+class MDES_CleanUp(object):
+    """Class for cleaning up data and changing the field names."""
+
+    def __init__(self, sheet_path: str, mongo_client: MongoClient | None = None):
+        if mongo_client is None:
+            self.client = self.mongo_dictCollection_auth()
+        else:
+            self.client = mongo_client
+
+        tabs_collection = self.dictionaries_collection.find_one({"name": 'Tab Names'})
+        if tabs_collection is None:
+            raise ValueError("Document 'Tab Names' not found in dictionaries collection.")
+
+        self.tabs = tabs_collection['tabs'].values()
+
+        fields_collection = self.dictionaries_collection.find_one({"name": 'Field Names by Excel Table Tabs'})
+        if fields_collection is None:
+            raise ValueError("Document 'Field Names by Excel Table Tabs' not found in dictionaries collection.")
+
+        self.fields = pd.DataFrame(fields_collection['tabs'])
+
         self.sheet_path = sheet_path
-        self.get_sec_level = lambda x: re.search('(?<=\[).*?(?=\])', x)[0]
+        self.get_sec_level = lambda x: re.search(r'(?<=\[).*?(?=\])', x)[0]
         self.resource_clean = lambda x: x.split(' (')[0]
 
-    def Sheet_CleanUp(self, tab):
+    @property
+    def dictionaries_collection(self) -> MongoCollection:
+        return self.client.dev['dictionaries']
+
+    def Sheet_CleanUp(self, tab) -> pd.DataFrame:
         data = pd.read_excel(self.sheet_path, sheet_name=tab, header=None)
         data = data.iloc[data.loc[data.iloc[:,0] == 1].index[0]:,:].reset_index(drop=True)
         data.columns = self.fields[tab].dropna().values
@@ -49,12 +73,38 @@ class MDES_CleanUp:
 
     # Misc. Functions
     
-    def extract_json_data(self, path):
-        f = open(path)
-        contents = json.load(f)
-        f.close()
-        return contents    
+    def extract_json_data(self, path: str) -> Any:
+        with open(path, 'r') as f:
+            contents = json.load(f)
+
+        return contents
     
-    def mongo_dictCollection_auth(self):
-        client = MongoClient(self.extract_json_data(r"dictionaries\mongo_auth.json")['botConnectionString'])
-        return client.dev['dictionaries']
+    def mongo_dictCollection_auth(self) -> MongoClient:
+        """
+        Authenticates a MongoClient given a pre-specified connection string.
+
+        Read a connection string from the specified JSON-file, establish a
+        connection to MongoDB, and return the client.
+
+        Returns
+        -------
+        pymongo.MongoClient
+            The client, authenticated using the connection string provided in the JSON-file.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the JSON-file with the connection string does not exist.
+        KeyError
+            If the 'botConnectionString' is not found in the loaded dictionary.
+        pymongo.errors.ConnectionFailure
+            If the connection to MongoDB fails.
+
+        .. deprecated::
+            Calling this method explicitly is deprecated. Pass an authenticated
+            client to the class constructor instead.
+        """
+        import warnings
+        warnings.warn("Don't call this method explicitly. Rather, pass an authenticated client to the class constructor.", DeprecationWarning, stacklevel=2)
+
+        return MongoClient(self.extract_json_data(os.path.join("dictionaries", "mongo_auth.json"))['botConnectionString'])
