@@ -10,10 +10,7 @@
 # MET-Cleaner
 Repo for the metadata excel table clean-up and parsing script
 
-## Description
-The following .py files serve the following functions:
-
-### `Excel2Json.py`
+## `Excel2Json.py`
 
 This document contains the ExportJson class which can be used to convert a DRE standard metadata Excel sheet to a JSON list.
 The example shows how to perform document export (see also [the example script](example_insert.py)):
@@ -50,7 +47,7 @@ for doc in data:
 ```
 
 
-### `ValueSync.py`
+## `ValueSync.py`
 
 This document to can be used to update the `persons` and `institutions` collections in DRE MongoDB.
 
@@ -86,17 +83,17 @@ print(persons.check_missing())
 print(persons.synchronise())
 ```
 
-### `cli.py`
+## CLI wrapper: `cli.py`
 
 This is a CLI wrapper for the "insert" and "sync" operations.
 
-#### `cli.py insert`
+### `cli.py insert`
 
 Run with `python cli.py insert --help` to get an overview for the required arguments.
 This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
 The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
 
-##### Example
+#### Example
 
 ``` shell
 $ python cli.py insert \
@@ -109,13 +106,13 @@ $ python cli.py insert \
 ```
 
 
-#### `cli.py sync`
+### `cli.py sync`
 
 Run with `python cli.py insert --help` to get an overview for the required arguments.
 This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
 The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
 
-##### Example
+#### Example
 
 ``` shell
 $ python cli.py sync \
@@ -125,7 +122,7 @@ $ python cli.py sync \
     --dry-run
 ```
 
-## LoC Subject Headings
+# LoC Subject Headings
 
 The subjects provided in the Excel sheet are indexed against the LoC subject headings.
 The first result for which the `aLabel`-field matches the search term is used; comparison is done on the lower-cased strings.
