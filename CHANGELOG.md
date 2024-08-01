@@ -13,6 +13,7 @@ This project loosely adheres to a date-based versioning scheme.
 * **LoC URIs!** After the data has been read and wrangled from the Excel sheet, subject labels are indexed against the Library of Congress suggestion-API to retrieve:
   * authoritative labels
   * subject-heading URIs
+* **CLI command!** The CLI wrapper `cli.py` supports the "insert" and "sync" operations covered in the examples. Call `python cli.py --help`, or one of the subcommands: `python cli.py [insert|sync] --help` to get started.
 
 ## 2024-07-24
 

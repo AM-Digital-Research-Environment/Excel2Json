@@ -8,6 +8,7 @@ Created on Wed Dec 13 15:35:34 2023
 
 import re
 from datetime import datetime
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -21,11 +22,11 @@ from LocClient import LocClient
 class ExportJson(object):
 
     # File can be path string or the dataframe object
-    def __init__(self, file: str | object, project_id, dspace_id, mongo_client: MongoClient | None = None):
+    def __init__(self, file: str | Path | pd.DataFrame, project_id, dspace_id, mongo_client: MongoClient | None = None):
         # Input given is project ID, default DSpace instance
-        if isinstance(file, str):
+        if isinstance(file, str) or isinstance(file, Path):
             self.data = MDES_CleanUp(file, mongo_client=mongo_client).execute()
-        elif isinstance(file, object):
+        elif isinstance(file, pd.DataFrame):
             self.data = file
         self.project_Id = project_id
         self.dspace_Id = dspace_id
