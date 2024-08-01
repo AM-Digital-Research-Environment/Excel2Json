@@ -1,4 +1,5 @@
 # Libraries
+import enum
 from typing import Any, List
 from pymongo import MongoClient
 import pandas as pd
@@ -6,6 +7,9 @@ import re
 from wasabi import Printer
 import warnings
 
+class Qualifiers(enum.Enum):
+    INSTITUTION = "[institution]"
+    GROUP = "[group]"
 
 class ValueList(object):
     def __init__(self, auth_string: str | None, db_name: str, col_name: str, dev_list: str, client: MongoClient | None = None):
@@ -37,7 +41,16 @@ class ValueList(object):
     # Persons in reference collection
     def in_collection(self) -> List[Any]:
         if self._dev_list == 'persons':
-            return list(self._ref_col.distinct("name.name"))
+            out = []
+            names = self._ref_col.distinct("name.name")
+            ignore_pattern = re.compile('|'.join(map(lambda x: re.escape(x.value), Qualifiers)))
+            print(ignore_pattern)
+
+            for name in names:
+                if ignore_pattern.search(name) is None:
+                    out.append(name)
+
+            return out
         elif self._dev_list == 'institutions':
             # First pass: get all proper affiliations
 
@@ -55,12 +68,20 @@ class ValueList(object):
             # Second pass: get all names containing an "institution qualifier"
             names = self._ref_col.distinct("name.name")
 
-            qualifiers_pattern = re.compile('|'.join(map(re.escape, self._qualifiers)))
-            names_cleaned = [qualifiers_pattern.sub('', name).strip() for name in names if qualifiers_pattern.search(name)]
+            qualifier_pattern = re.compile(re.escape(Qualifiers.INSTITUTION.value))
+            names_cleaned = [qualifier_pattern.sub('', name).strip() for name in names if qualifier_pattern.search(name)]
             out.extend(names_cleaned)
 
             return list(set(out))
+        elif self._dev_list == 'groups':
+            out = []
+            names = self._ref_col.distinct("name.name")
 
+            qualifier_pattern = re.compile(re.escape(Qualifiers.GROUP.value))
+            names_cleaned = [qualifier_pattern.sub('', name).strip() for name in names if qualifier_pattern.search(name)]
+            out.extend(names_cleaned)
+
+            return list(set(out))
         else:
             return []
 

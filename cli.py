@@ -1,4 +1,5 @@
 from datetime import datetime
+import enum
 from os import EX_IOERR
 from pathlib import Path
 
@@ -98,6 +99,12 @@ def insert(
     raise typer.Exit()
 
 
+class SyncCollection(str, enum.Enum):
+    PERSONS = "persons"
+    INSTITUTION = "institutions"
+    GROUPS = "groups"
+
+
 @app.command()
 def sync(
     connection: Annotated[
@@ -117,7 +124,7 @@ def sync(
         ),
     ],
     target: Annotated[
-        str,
+        SyncCollection,
         typer.Option(
             "--target",
             "-t",
@@ -160,7 +167,7 @@ def sync(
         auth_string=None,
         db_name=db_name,
         col_name=col_name,
-        dev_list=target,
+        dev_list=target.value,
         client=client,
     )
 
@@ -169,7 +176,7 @@ def sync(
         print(f"  {value}")
 
     # get values missing in the MongoDB collection
-    msg.info(f"Values missing in target dictionary '{target}':")
+    msg.info(f"Values missing in target dictionary '{target.value}':")
     missing = values.check_missing()
     if len(missing) == 0:
         msg.info("No missing values found, nothing to do from here")
@@ -180,7 +187,7 @@ def sync(
 
     if dry_run:
         msg.warn("Running with --dry-run. Will not perform sync")
-        msg.info(f"Would synchronise {len(missing)} values into {target}")
+        msg.info(f"Would synchronise {len(missing)} values into {target.value}")
         raise typer.Exit()
 
     msg.info(f"Running sync now for {len(missing)} values...")
