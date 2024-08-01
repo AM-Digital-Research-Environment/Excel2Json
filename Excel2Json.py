@@ -10,16 +10,18 @@ import pandas as pd
 import numpy as np
 import re
 from datetime import datetime
+
+from pymongo import MongoClient
 from dev.ExcelCleaner import MDES_CleanUp
 
 
-class ExportJson:
+class ExportJson(object):
 
     # File can be path string or the dataframe object
-    def __init__(self, file: str | object, project_id, dspace_id):
+    def __init__(self, file: str | object, project_id, dspace_id, mongo_client: MongoClient | None = None):
         # Input given is project ID, default DSpace instance
         if isinstance(file, str):
-            self.data = MDES_CleanUp(file).execute()
+            self.data = MDES_CleanUp(file, mongo_client=mongo_client).execute()
         elif isinstance(file, object):
             self.data = file
         self.project_Id = project_id
@@ -88,7 +90,7 @@ class ExportJson:
             # Roles
             
             role_list = []
-            all_role = row.filter(regex='name_\d+$|role_\d+$|affl_\d+$')
+            all_role = row.filter(regex=r'name_\d+$|role_\d+$|affl_\d+$')
             
             for rtype in range(1, int(len(all_role.index)/3)+1):
                 role = all_role.filter(regex=f'_{rtype}$')
@@ -122,7 +124,7 @@ class ExportJson:
             # Identifiers
             
             identifiers = []
-            ids = row.filter(regex='identifier_\d+$|identifier_type_\d+$')
+            ids = row.filter(regex=r'identifier_\d+$|identifier_type_\d+$')
             
             for n in range(1, int(len(ids.index)/2)*1):
                 id_n = ids.filter(regex=f'identifier_{n}$|identifier_type_{n}$')
