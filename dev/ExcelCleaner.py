@@ -7,6 +7,7 @@ Created on Wed Dec 13 15:40:25 2023
 
 # Libraries
 
+from pathlib import Path
 from typing import Any
 from pymongo import MongoClient
 from pymongo.collection import Collection as MongoCollection
@@ -20,7 +21,7 @@ import os
 class MDES_CleanUp(object):
     """Class for cleaning up data and changing the field names."""
 
-    def __init__(self, sheet_path: str, mongo_client: MongoClient | None = None):
+    def __init__(self, sheet_path: str | Path, mongo_client: MongoClient | None = None):
         if mongo_client is None:
             self.client = self.mongo_dictCollection_auth()
         else:
