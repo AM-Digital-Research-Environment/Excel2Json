@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from Excel2Json import Excel2Json
 
 
@@ -13,7 +12,7 @@ def test_roles_are_transformed_to_the_correct_schema():
         {
             "desc": "Name without qualifier, no affiliation",
             "in": {"name": "Doe, Jane", "affl": np.nan},
-            "out": {"name": {"label": "Doe, Jane", "qualifier": None}, "affl": None},
+            "out": {"name": {"label": "Doe, Jane", "qualifier": None}, "affl": []},
         },
         {
             "desc": "Name without qualifier, single affiliation",
@@ -55,10 +54,13 @@ def test_roles_are_transformed_to_the_correct_schema():
             "in": {"name": "First Anchor Books [institution]", "affl": np.nan},
             "out": {
                 "name": {"label": "First Anchor Books", "qualifier": "institution"},
-                "affl": None,
+                "affl": [],
             },
         },
     ]
 
     for case in cases:
-        assert case["out"] == Excel2Json.ExportJson.build_role(case["in"]), f"Failed: {case['desc']}"
+        left = case["out"]
+        right = Excel2Json.ExportJson.build_role(case["in"])
+
+        assert left == right, f"Failed: {case['desc']}"

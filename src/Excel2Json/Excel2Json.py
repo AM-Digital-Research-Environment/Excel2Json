@@ -16,7 +16,7 @@ import pandas as pd
 from pymongo import MongoClient
 from wasabi import Printer
 from .ValueSync import Qualifiers
-from .types import Role, Name
+from .types import collection
 
 from .dev.ExcelCleaner import MDES_CleanUp
 from .LocClient import LocClient
@@ -330,12 +330,12 @@ class ExportJson(object):
 
 
     @classmethod
-    def build_role(cls, data: dict) -> Optional[Role]:
+    def build_role(cls, data: dict) -> Optional[collection.Role]:
         if pd.isna(data["name"]):
             return None
 
-        name = Name(label=data["name"].strip(), qualifier=None)
-        role = Role(name=name, affl=None)
+        name = collection.Name(label=data["name"].strip(), qualifier=None)
+        role = collection.Role(name=name, affl=[])
 
         match = cls.qualifiers_pattern.match(role['name']['label'])
         if match:
