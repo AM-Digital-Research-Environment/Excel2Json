@@ -10,8 +10,8 @@ from typing_extensions import Annotated
 from wasabi import msg
 from rich.progress import track
 
-from Excel2Json import ExportJson
-from ValueSync import ValueList
+from .Excel2Json import ExportJson
+from .ValueSync import ValueList
 
 app = typer.Typer(help="A CLI wrapper for metadata management")
 

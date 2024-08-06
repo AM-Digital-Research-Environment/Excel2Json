@@ -15,8 +15,8 @@ import pandas as pd
 from pymongo import MongoClient
 from wasabi import Printer
 
-from dev.ExcelCleaner import MDES_CleanUp
-from LocClient import LocClient
+from .dev.ExcelCleaner import MDES_CleanUp
+from .LocClient import LocClient
 
 
 class ExportJson(object):
