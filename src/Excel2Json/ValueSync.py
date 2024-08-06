@@ -1,11 +1,13 @@
 # Libraries
+from collections import defaultdict
 import enum
-from typing import Any, List
+from typing import Any, Iterable, List
 from pymongo import MongoClient
 import pandas as pd
 import re
 from wasabi import Printer
 import warnings
+from .types import dictionary, collection
 
 class Qualifiers(enum.Enum):
     INSTITUTION = "institution"
@@ -37,19 +39,32 @@ class ValueList(object):
         self._update_col = self._client['dev'][dev_list]
         self._printer = Printer()
 
+
+    @staticmethod
+    def handle_persons(coll: Iterable[collection.Role]) -> list[dictionary.PersonItem]:
+        persons = defaultdict(set)
+        for item in coll:
+            if item['name']['qualifier'] is not None:
+                continue
+
+            # touch the key so that we can add to the set provided by the default factory
+            persons[item["name"]["label"]] = persons[item["name"]["label"]]
+
+            for aff in item["affl"]:
+                persons[item["name"]["label"]].add(aff)
+
+        return [
+            dictionary.PersonItem(affiliation=list(affil), name=name)
+            for name, affil in persons.items()
+        ]
+
+
     # Persons in reference collection
     def in_collection(self) -> List[Any]:
         if self._dev_list == 'persons':
-            out = []
-            names = self._ref_col.distinct("name.name")
-            ignore_pattern = re.compile('|'.join(map(lambda x: re.escape(f"[{x.value}]"), Qualifiers)))
-            print(ignore_pattern)
+            names = self._ref_col.distinct("name")
 
-            for name in names:
-                if ignore_pattern.search(name) is None:
-                    out.append(name)
-
-            return out
+            return self.handle_persons(names)
         elif self._dev_list == 'institutions':
             # First pass: get all proper affiliations
 
@@ -58,10 +73,7 @@ class ValueList(object):
             out = []
             for institute in institutions:
                 if institute and not pd.isna(institute):
-                    names = institute.split(';')
-                    names = map(lambda x: x.strip(), names)
-                    # "None" will remove anything that evaluates to False
-                    names = filter(None, names)
+                    names = [n.strip() for n in institute.split(';') if n.strip()]
                     out.extend(names)
 
             # Second pass: get all names containing an "institution qualifier"

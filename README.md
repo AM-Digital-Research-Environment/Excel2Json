@@ -148,7 +148,7 @@ The `name`-key stores names of associated persons (or other actors, e.g., groups
             "label": string|null,     // contains the raw name, if present
             "qualifier": string|null  // an optional qualifier
         }
-        "affl": Array<string>|null    // list of affiliations
+        "affl": Array<string>         // list of affiliations; **may be empty!**
     }
 ]
 ```
