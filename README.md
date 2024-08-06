@@ -130,20 +130,43 @@ If none of the results' `aLabel`s match, the original label is retained.
 
 The API is used in `leftanchord`-mode, as opposed to `keyword`-mode (see [the LoC API docs](https://id.loc.gov/techcenter/searching.html)).
 
+The schema for `subject` is documented below in [subject](#subject)
+
+# MongoDB schema
+
+An incomplete schema for documents inside the project-collection.
+
+## `name`
+
+The `name`-key stores names of associated persons (or other actors, e.g., groups and institutions):
+
+``` json-with-comments
+{
+"name": [                             // list of objects of the following shape
+    {
+        "name": {
+            "label": string|null,     // contains the raw name, if present
+            "qualifier": string|null  // an optional qualifier
+        }
+        "affl": Array<string>|null    // list of affiliations
+    }
+]
+```
+
+## `subject`
+
 All subjects are stored in the following schema in the `subject`-field of the document:
 
-``` json
+``` json-with-comments
 {
- ...
- subject: [
+ "subject": [                   // list of objects of the following shape
     {
        "uri": string|NaN,       // the LoC URI for the subject heading
        "authority": string|NaN, // the authority URI
        "origLabel": string,     // the raw term, as provided in the data
        "authLabel": string|NaN  // the authoritative label
     }
- ],
- ...
+ ]
 }
 ```
 
