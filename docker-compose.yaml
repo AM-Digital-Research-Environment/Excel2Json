@@ -12,9 +12,12 @@ services:
   mongo:
     image: mongo:6.0.16-jammy
     restart: always
+    volumes:
+        - ./docker-init/dev.collections.js:/docker-entrypoint-initdb.d/dev.collections.js
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: dev
     networks:
       - app
       - backbone

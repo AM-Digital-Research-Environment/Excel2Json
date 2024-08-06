@@ -8,8 +8,8 @@ from wasabi import Printer
 import warnings
 
 class Qualifiers(enum.Enum):
-    INSTITUTION = "[institution]"
-    GROUP = "[group]"
+    INSTITUTION = "institution"
+    GROUP = "group"
 
 class ValueList(object):
     def __init__(self, auth_string: str | None, db_name: str, col_name: str, dev_list: str, client: MongoClient | None = None):
@@ -35,7 +35,6 @@ class ValueList(object):
         self._dev_list = dev_list
         self._ref_col = self._client[db_name][col_name]
         self._update_col = self._client['dev'][dev_list]
-        self._qualifiers = ["[institution]"]
         self._printer = Printer()
 
     # Persons in reference collection
@@ -43,7 +42,7 @@ class ValueList(object):
         if self._dev_list == 'persons':
             out = []
             names = self._ref_col.distinct("name.name")
-            ignore_pattern = re.compile('|'.join(map(lambda x: re.escape(x.value), Qualifiers)))
+            ignore_pattern = re.compile('|'.join(map(lambda x: re.escape(f"[{x.value}]"), Qualifiers)))
             print(ignore_pattern)
 
             for name in names:
