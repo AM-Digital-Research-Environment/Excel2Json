@@ -9,17 +9,26 @@ Created on Wed Dec 13 15:35:34 2023
 import re
 from datetime import datetime
 from pathlib import Path
+from typing import Optional, TypedDict
 
 import numpy as np
 import pandas as pd
 from pymongo import MongoClient
 from wasabi import Printer
+from .ValueSync import Qualifiers
+from .types import Role, Name
 
-from dev.ExcelCleaner import MDES_CleanUp
-from LocClient import LocClient
-
+from .dev.ExcelCleaner import MDES_CleanUp
+from .LocClient import LocClient
 
 class ExportJson(object):
+    # pattern with two capturing groups for 'name' and 'qualifier' part;
+    # compiled pattern looks like this: (.*?)\s*\[(foo|bar|quux)\]
+    qualifiers_pattern = re.compile(
+        r"(?P<name>.*?)\s*\[(?P<qualifier>"
+        + "|".join(map(lambda x: x.value, Qualifiers))
+        + r")\]"
+    )
 
     # File can be path string or the dataframe object
     def __init__(self, file: str | Path | pd.DataFrame, project_id, dspace_id, mongo_client: MongoClient | None = None):
@@ -102,11 +111,11 @@ class ExportJson(object):
                 for rtype in range(1, int(len(all_role.index)/3)+1):
                     role = all_role.filter(regex=f'_{rtype}$')
                     role.index = [c.replace(f'_{rtype}', '') for c in role.index]
-                    if not pd.isna(role['name']):
-                        role['name'] = role['name'].strip()
-                        role_list.append(role.to_dict())
-                    else:
+                    built = self.build_role(role)
+                    if built is None:
                         continue
+
+                    role_list.append(built)
 
                 data_dict['name'] = role_list
 
@@ -318,3 +327,24 @@ class ExportJson(object):
             return 0
         else:
             return None
+
+
+    @classmethod
+    def build_role(cls, data: dict) -> Optional[Role]:
+        if pd.isna(data["name"]):
+            return None
+
+        name = Name(label=data["name"].strip(), qualifier=None)
+        role = Role(name=name, affl=None)
+
+        match = cls.qualifiers_pattern.match(role['name']['label'])
+        if match:
+            role["name"]["label"] = match.group("name")
+            role["name"]["qualifier"] = match.group("qualifier")
+
+        if pd.isna(data['affl']):
+            return role
+
+        role['affl'] = [a.strip() for a in data['affl'].split(';') if a.split()]
+
+        return role
