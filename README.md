@@ -19,7 +19,14 @@ Your tooling may differ, in which case you should consult the respective docs on
 $ cd my-project
 $ python -m venv .venv
 $ source .venv/bin/activate
-$ pip install git+ssh://git@github.com/AM-Digital-Research-Environment/Excel2Json.git
+$ pip install git+ssh://git@github.com/AM-Digital-Research-Environment/Excel2Json.git@Version2.0
+$ # building...
+$ python -m Excel2Json --help
+                                                                                                                                                                                                                   
+ Usage: python -m Excel2Json [OPTIONS] COMMAND [ARGS]...                                                                                                                                                            
+                                                                                                                                                                                                                    
+ A CLI wrapper for metadata management
+...
 ```
 
 ## CLI wrapper
