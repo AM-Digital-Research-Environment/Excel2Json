@@ -1,9 +1,10 @@
 [project]
-name = "11-excel2json"
+name = "Excel2Json"
 version = "0.1.0"
-description = "Add your description here"
+description = "Repo for the metadata excel table clean-up and parsing script"
 authors = [
-    { name = "Oliver Baumann", email = "oliver.baumann@uni-bayreuth.de" }
+    { name = "Neeraj Viswajith" },
+    { name = "Oliver Baumann" }
 ]
 dependencies = [
     "numpy>=1.26.4",

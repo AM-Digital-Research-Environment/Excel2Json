@@ -12,7 +12,15 @@ Repo for the metadata excel table clean-up and parsing script
 
 ## Installation
 
-*TODO*
+These docs cover the typical case of "pip in a virtual environment".
+Your tooling may differ, in which case you should consult the respective docs on installing a package from github that doesn't have a build on PyPI.
+
+``` shell
+$ cd my-project
+$ python -m venv .venv
+$ source .venv/bin/activate
+$ pip install git+ssh://git@github.com/AM-Digital-Research-Environment/Excel2Json.git
+```
 
 ## CLI wrapper
 
@@ -141,9 +149,49 @@ The schema for `subject` is documented below in [subject](#subject)
 
 # MongoDB schema
 
-An incomplete schema for documents inside the project-collection.
+An incomplete schema for documents inside MongoDB.
 
-## `name`
+## Dev-dictionaries
+
+### `persons`
+
+``` json-with-comments
+{
+    "_id_": ObjectId,                 // internal MongoDB ID
+    "name": {
+        "name": string,               // the name of the person
+        "affiliation": Array<string>  // their affiliations; may be empty; unique values
+    }
+}
+```
+
+A query for all distinct names thus looks like `db.persons.distinct("name.name")`.
+
+### `groups`
+
+``` json-with-comments
+{
+    "_id_": ObjectId, // internal MongoDB ID
+    "name": string    // the name of the group
+}
+```
+
+A query for all distinct names thus looks like `db.persons.distinct("name")`.
+
+### `institutions`
+
+``` json-with-comments
+{
+    "_id_": ObjectId, // internal MongoDB ID
+    "name": string    // the name of the institution
+}
+```
+
+A query for all distinct names thus looks like `db.persons.distinct("name")`.
+
+## Project-specific collections
+
+### `name`
 
 The `name`-key stores names of associated persons (or other actors, e.g., groups and institutions):
 
@@ -161,7 +209,7 @@ The `name`-key stores names of associated persons (or other actors, e.g., groups
 ]
 ```
 
-## `subject`
+### `subject`
 
 All subjects are stored in the following schema in the `subject`-field of the document:
 
