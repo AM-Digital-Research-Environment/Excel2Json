@@ -335,7 +335,10 @@ class ExportJson(object):
             return None
 
         name = collection.Name(label=data["name"].strip(), qualifier=None)
-        role = collection.Role(name=name, affl=[])
+        role = collection.Role(name=name, affl=[], role="")
+
+        if "role" in data and not pd.isna(data["role"]):
+            role["role"] = data["role"].strip()
 
         match = cls.qualifiers_pattern.match(role['name']['label'])
         if match:

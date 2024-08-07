@@ -145,10 +145,11 @@ The `name`-key stores names of associated persons (or other actors, e.g., groups
 "name": [                             // list of objects of the following shape
     {
         "name": {
-            "label": string|null,     // contains the raw name, if present
-            "qualifier": string|null  // an optional qualifier
+            "label": string|null,     // the raw name; **null if not present**
+            "qualifier": string|null  // an optional qualifier; **null if not present**
         }
         "affl": Array<string>         // list of affiliations; **may be empty!**
+        "role": string                // the assigned role; **may be empty!**
     }
 ]
 ```
