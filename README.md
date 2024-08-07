@@ -10,6 +10,52 @@
 # MET-Cleaner
 Repo for the metadata excel table clean-up and parsing script
 
+## Installation
+
+*TODO*
+
+## CLI wrapper
+
+This package provides a CLI suite for metadata ingestion, currently consisting of the `insert` and `sync` subcommands.
+
+You'll find documentation for the available commands and options [here](./docs/CLI.md).
+Below is a quick run-down of possible uses.
+
+### `cli.py insert`
+
+Run with `python cli.py insert --help` to get an overview for the required arguments.
+This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
+The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
+
+#### Example
+
+``` shell
+$ python cli.py insert \
+    --connection mongodb://root:example@mongo \
+    --target projects_metadata_ubt_TEST.sample_project \
+    -project-id aaa \
+    -dspace-id 01 \
+    --dry-run \
+    sample.xlsx
+```
+
+
+### `cli.py sync`
+
+Run with `python cli.py insert --help` to get an overview for the required arguments.
+This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
+The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
+
+#### Example
+
+``` shell
+$ python cli.py sync \
+    --connection mongodb://root:example@mongo \
+    --from projects_metadata_ubt_TEST.sample_project \
+    --target persons \
+    --dry-run
+```
+
 ## `Excel2Json.py`
 
 This document contains the ExportJson class which can be used to convert a DRE standard metadata Excel sheet to a JSON list.
@@ -81,45 +127,6 @@ print(persons.check_missing())
 
 # update collection with missing values
 print(persons.synchronise())
-```
-
-## CLI wrapper: `cli.py`
-
-This is a CLI wrapper for the "insert" and "sync" operations.
-
-### `cli.py insert`
-
-Run with `python cli.py insert --help` to get an overview for the required arguments.
-This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
-The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
-
-#### Example
-
-``` shell
-$ python cli.py insert \
-    --connection mongodb://root:example@mongo \
-    --target projects_metadata_ubt_TEST.sample_project \
-    -project-id aaa \
-    -dspace-id 01 \
-    --dry-run \
-    sample.xlsx
-```
-
-
-### `cli.py sync`
-
-Run with `python cli.py insert --help` to get an overview for the required arguments.
-This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
-The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
-
-#### Example
-
-``` shell
-$ python cli.py sync \
-    --connection mongodb://root:example@mongo \
-    --from projects_metadata_ubt_TEST.sample_project \
-    --target persons \
-    --dry-run
 ```
 
 # LoC Subject Headings
