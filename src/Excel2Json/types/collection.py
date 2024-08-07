@@ -1,9 +1,12 @@
 from typing import Optional, TypedDict
 
+
 class Name(TypedDict):
-    label: Optional[str]
+    label: str
     qualifier: Optional[str]
 
+
 class Role(TypedDict):
+    role: str
     name: Name
-    affl: Optional[list[str]]
+    affl: list[str]

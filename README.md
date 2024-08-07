@@ -10,6 +10,60 @@
 # MET-Cleaner
 Repo for the metadata excel table clean-up and parsing script
 
+## Installation
+
+These docs cover the typical case of "pip in a virtual environment".
+Your tooling may differ, in which case you should consult the respective docs on installing a package from github that doesn't have a build on PyPI.
+
+``` shell
+$ cd my-project
+$ python -m venv .venv
+$ source .venv/bin/activate
+$ pip install git+ssh://git@github.com/AM-Digital-Research-Environment/Excel2Json.git
+```
+
+## CLI wrapper
+
+This package provides a CLI suite for metadata ingestion, currently consisting of the `insert` and `sync` subcommands.
+
+You'll find documentation for the available commands and options [here](./docs/CLI.md).
+Below is a quick run-down of possible uses.
+
+### `cli.py insert`
+
+Run with `python cli.py insert --help` to get an overview for the required arguments.
+This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
+The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
+
+#### Example
+
+``` shell
+$ python cli.py insert \
+    --connection mongodb://root:example@mongo \
+    --target projects_metadata_ubt_TEST.sample_project \
+    -project-id aaa \
+    -dspace-id 01 \
+    --dry-run \
+    sample.xlsx
+```
+
+
+### `cli.py sync`
+
+Run with `python cli.py insert --help` to get an overview for the required arguments.
+This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
+The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
+
+#### Example
+
+``` shell
+$ python cli.py sync \
+    --connection mongodb://root:example@mongo \
+    --from projects_metadata_ubt_TEST.sample_project \
+    --target persons \
+    --dry-run
+```
+
 ## `Excel2Json.py`
 
 This document contains the ExportJson class which can be used to convert a DRE standard metadata Excel sheet to a JSON list.
@@ -83,45 +137,6 @@ print(persons.check_missing())
 print(persons.synchronise())
 ```
 
-## CLI wrapper: `cli.py`
-
-This is a CLI wrapper for the "insert" and "sync" operations.
-
-### `cli.py insert`
-
-Run with `python cli.py insert --help` to get an overview for the required arguments.
-This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
-The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
-
-#### Example
-
-``` shell
-$ python cli.py insert \
-    --connection mongodb://root:example@mongo \
-    --target projects_metadata_ubt_TEST.sample_project \
-    -project-id aaa \
-    -dspace-id 01 \
-    --dry-run \
-    sample.xlsx
-```
-
-
-### `cli.py sync`
-
-Run with `python cli.py insert --help` to get an overview for the required arguments.
-This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
-The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
-
-#### Example
-
-``` shell
-$ python cli.py sync \
-    --connection mongodb://root:example@mongo \
-    --from projects_metadata_ubt_TEST.sample_project \
-    --target persons \
-    --dry-run
-```
-
 # LoC Subject Headings
 
 The subjects provided in the Excel sheet are indexed against the LoC subject headings.
@@ -134,9 +149,49 @@ The schema for `subject` is documented below in [subject](#subject)
 
 # MongoDB schema
 
-An incomplete schema for documents inside the project-collection.
+An incomplete schema for documents inside MongoDB.
 
-## `name`
+## Dev-dictionaries
+
+### `persons`
+
+``` json-with-comments
+{
+    "_id_": ObjectId,                 // internal MongoDB ID
+    "name": {
+        "name": string,               // the name of the person
+        "affiliation": Array<string>  // their affiliations; may be empty; unique values
+    }
+}
+```
+
+A query for all distinct names thus looks like `db.persons.distinct("name.name")`.
+
+### `groups`
+
+``` json-with-comments
+{
+    "_id_": ObjectId, // internal MongoDB ID
+    "name": string    // the name of the group
+}
+```
+
+A query for all distinct names thus looks like `db.persons.distinct("name")`.
+
+### `institutions`
+
+``` json-with-comments
+{
+    "_id_": ObjectId, // internal MongoDB ID
+    "name": string    // the name of the institution
+}
+```
+
+A query for all distinct names thus looks like `db.persons.distinct("name")`.
+
+## Project-specific collections
+
+### `name`
 
 The `name`-key stores names of associated persons (or other actors, e.g., groups and institutions):
 
@@ -145,15 +200,16 @@ The `name`-key stores names of associated persons (or other actors, e.g., groups
 "name": [                             // list of objects of the following shape
     {
         "name": {
-            "label": string|null,     // contains the raw name, if present
-            "qualifier": string|null  // an optional qualifier
+            "label": string|null,     // the raw name; **null if not present**
+            "qualifier": string|null  // an optional qualifier; **null if not present**
         }
-        "affl": Array<string>|null    // list of affiliations
+        "affl": Array<string>         // list of affiliations; **may be empty!**
+        "role": string                // the assigned role; **may be empty!**
     }
 ]
 ```
 
-## `subject`
+### `subject`
 
 All subjects are stored in the following schema in the `subject`-field of the document:
 
