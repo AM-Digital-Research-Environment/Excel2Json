@@ -1,10 +1,13 @@
 # Libraries
 from collections import defaultdict
 import enum
-from typing import Any, Iterable, List
+from typing import Any, Iterable, List, Mapping
 from pymongo import MongoClient
 import pandas as pd
 import re
+import difflib
+import pprint
+
 from wasabi import Printer
 import warnings
 from .types import dictionary, collection
@@ -62,37 +65,29 @@ class ValueList(object):
     # Persons in reference collection
     def in_collection(self) -> List[Any]:
         if self._dev_list == 'persons':
-            names = self._ref_col.distinct("name")
+            results = self._ref_col.distinct("name")
 
-            return self.handle_persons(names)
+            return self.handle_persons(results)
         elif self._dev_list == 'institutions':
             # First pass: get all proper affiliations
-
             institutions = list(self._ref_col.distinct("name.affl"))
             # Cleaning list
-            out = []
-            for institute in institutions:
-                if institute and not pd.isna(institute):
-                    names = [n.strip() for n in institute.split(';') if n.strip()]
-                    out.extend(names)
+            out = [i.strip() for i in institutions if i.strip()]
 
             # Second pass: get all names containing an "institution qualifier"
-            names = self._ref_col.distinct("name.name")
+            names = self._ref_col.distinct(
+                "name.name.label", filter={"name.name.qualifier": Qualifiers.INSTITUTION.value}
+            )
 
-            qualifier_pattern = re.compile(re.escape(Qualifiers.INSTITUTION.value))
-            names_cleaned = [qualifier_pattern.sub('', name).strip() for name in names if qualifier_pattern.search(name)]
-            out.extend(names_cleaned)
+            out.extend([n.strip() for n in names if n.strip()])
 
-            return list(set(out))
+            return sorted(set(out))
         elif self._dev_list == 'groups':
-            out = []
-            names = self._ref_col.distinct("name.name")
+            names = self._ref_col.distinct(
+                "name.name.label", filter={"name.name.qualifier": Qualifiers.GROUP.value}
+            )
 
-            qualifier_pattern = re.compile(re.escape(Qualifiers.GROUP.value))
-            names_cleaned = [qualifier_pattern.sub('', name).strip() for name in names if qualifier_pattern.search(name)]
-            out.extend(names_cleaned)
-
-            return list(set(out))
+            return sorted([n.strip() for n in names if n.strip()])
         else:
             return []
 
@@ -118,6 +113,39 @@ class ValueList(object):
             self._printer.info("No documents found to insert.")
             return True
 
+        # TODO: this is a hack
+        # For persons, differences may be related to the affiliations in
+        # name.affiliation, e.g., one new affiliation that is not yet registered.
+        # In this case, we need to update the existing person with the new affiliations.
+        # Potential improvement: use `update_many(...,upsert=True)`
+        # https://pymongo.readthedocs.io/en/stable/api/pymongo/collection.html#pymongo.collection.Collection.update_many
+        if self._dev_list == "persons":
+            for i, item in enumerate(insert):
+                # look up the person by name
+                test = self._update_col.find({"name.name": item["name"]["name"]})
+                if test is not None:
+                    for t in test:
+                        self._printer.info(f"Existing person found: {t["name"]["name"]}")
+                        print(compare_dicts(item, t))
+                        # update the item with the set-union of affiliations
+                        mongo_affils = set(t["name"]["affiliation"])
+                        project_affils = set(item["name"]["affiliation"])
+                        # make sure to convert back to list
+                        merged_affils = list(mongo_affils | project_affils)
+                        # update based on retrieved ID
+                        result = self._update_col.update_one(
+                            {"_id": t["_id"]}, {"$set": {"name.affiliation": merged_affils}}
+                        )
+                        if result.modified_count == 0:
+                            self._printer.fail(f"Error while updating item with ID {t['_id']}")
+                        # delete the current insertable, so that we can still
+                        # use `insert_many` for the remaining items
+                        del insert[i]
+
+        if len(insert) == 0:
+            self._printer.good("Successfully Synchronised!")
+            return True
+
         result = self._update_col.insert_many(insert)
 
         if len(result.inserted_ids) != len(insert):
@@ -126,3 +154,8 @@ class ValueList(object):
 
         self._printer.good("Successfully Synchronised!")
         return True
+
+def compare_dicts(d1, d2):
+    return ('\n' + '\n'.join(difflib.ndiff(
+                   pprint.pformat(d1).splitlines(),
+                   pprint.pformat(d2).splitlines())))
