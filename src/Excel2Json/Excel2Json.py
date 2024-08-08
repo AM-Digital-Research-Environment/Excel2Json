@@ -334,7 +334,9 @@ class ExportJson(object):
         if pd.isna(data["name"]):
             return None
 
-        name = collection.Name(label=data["name"].strip(), qualifier=None)
+        # set the 'person'-qualifier as default; will be overwritten if another
+        # qualifier is found
+        name = collection.Name(label=data["name"].strip(), qualifier=Qualifiers.PERSON.value)
         role = collection.Role(name=name, affl=[], role="")
 
         if "role" in data and not pd.isna(data["role"]):

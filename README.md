@@ -42,10 +42,13 @@ Run with `python cli.py insert --help` to get an overview for the required argum
 This command will read the provided Excel file, and sync the data into the specified collection in MongoDB.
 The `--dry-run`-flag can be used to test things out, it will not perform any insertion.
 
+Be sure to pass your personal identifier (e.g., initials) to the `--whoami` flag to set the correct responsibility in MongoDB.
+
 #### Example
 
 ``` shell
 $ python cli.py insert \
+    --whoami JaneDoe \
     --connection mongodb://root:example@mongo \
     --target projects_metadata_ubt_TEST.sample_project \
     -project-id aaa \
@@ -208,7 +211,7 @@ The `name`-key stores names of associated persons (or other actors, e.g., groups
     {
         "name": {
             "label": string|null,     // the raw name; **null if not present**
-            "qualifier": string|null  // an optional qualifier; **null if not present**
+            "qualifier": string       // an optional qualifier; **defaults to "person"**
         }
         "affl": Array<string>         // list of affiliations; **may be empty!**
         "role": string                // the assigned role; **may be empty!**

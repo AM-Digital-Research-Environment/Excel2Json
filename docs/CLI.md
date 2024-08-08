@@ -41,6 +41,7 @@ $ Excel2Json insert [OPTIONS] FILE
 
 **Options**:
 
+* `-w, --whoami TEXT`: Your initials; will be stored in the `updatedBy` field in MongoDB  [required]
 * `-c, --connection TEXT`: MongoDB connection string, format: 'mongodb://<user>:<pass>@<host>/'  [required]
 * `-t, --target TEXT`: The target collection to write data to, format: <database>.<collection>  [required]
 * `-p, --project-id TEXT`: The project ID  [required]
