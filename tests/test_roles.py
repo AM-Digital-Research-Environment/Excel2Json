@@ -15,7 +15,7 @@ def test_roles_are_transformed_to_the_correct_schema():
             "out": {
                 "name": {
                     "label": "Doe, Jane",
-                    "qualifier": None,
+                    "qualifier": "person",
                 },
                 "affl": [],
                 "role": "Researcher",
@@ -27,7 +27,7 @@ def test_roles_are_transformed_to_the_correct_schema():
             "out": {
                 "name": {
                     "label": "Doe, Jane",
-                    "qualifier": None,
+                    "qualifier": "person",
                 },
                 "affl": ["ACME Corp."],
                 "role": "Researcher",
@@ -39,7 +39,7 @@ def test_roles_are_transformed_to_the_correct_schema():
             "out": {
                 "name": {
                     "label": "Doe, Jane",
-                    "qualifier": None,
+                    "qualifier": "person",
                 },
                 "affl": ["ACME Corp."],
                 "role": "Researcher",
@@ -53,7 +53,7 @@ def test_roles_are_transformed_to_the_correct_schema():
                 "role": "Researcher",
             },
             "out": {
-                "name": {"label": "Doe, Jane", "qualifier": None},
+                "name": {"label": "Doe, Jane", "qualifier": "person"},
                 "affl": ["ACME Corp.", "Giga Corp."],
                 "role": "Researcher",
             },

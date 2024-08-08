@@ -47,7 +47,7 @@ def test_persons_are_transformed():
             "desc": "Single person, no affiliation",
             "in": [
                 {
-                    "name": {"label": "Doe, Jane", "qualifier": None},
+                    "name": {"label": "Doe, Jane", "qualifier": "person"},
                     "affl": [],
                 }
             ],
@@ -57,7 +57,7 @@ def test_persons_are_transformed():
             "desc": "Single person, single affiliation",
             "in": [
                 {
-                    "name": {"label": "Doe, Jane", "qualifier": None},
+                    "name": {"label": "Doe, Jane", "qualifier": "person"},
                     "affl": ["IEEE"],
                 }
             ],
@@ -67,15 +67,15 @@ def test_persons_are_transformed():
             "desc": "Multiple distinct persons, mixed affiliations",
             "in": [
                 {
-                    "name": {"label": "Doe, Jane", "qualifier": None},
+                    "name": {"label": "Doe, Jane", "qualifier": "person"},
                     "affl": ["IEEE"],
                 },
                 {
-                    "name": {"label": "Doe, John", "qualifier": None},
+                    "name": {"label": "Doe, John", "qualifier": "person"},
                     "affl": ["ACME Corp."],
                 },
                 {
-                    "name": {"label": "Test, Tina", "qualifier": None},
+                    "name": {"label": "Test, Tina", "qualifier": "person"},
                     "affl": ["ACME Corp."],
                 },
             ],
@@ -89,15 +89,15 @@ def test_persons_are_transformed():
             "desc": "Multiple same persons with differing affiliations",
             "in": [
                 {
-                    "name": {"label": "Doe, Jane", "qualifier": None},
+                    "name": {"label": "Doe, Jane", "qualifier": "person"},
                     "affl": ["IEEE"],
                 },
                 {
-                    "name": {"label": "Doe, Jane", "qualifier": None},
+                    "name": {"label": "Doe, Jane", "qualifier": "person"},
                     "affl": ["ACME Corp."],
                 },
                 {
-                    "name": {"label": "Test, Tina", "qualifier": None},
+                    "name": {"label": "Test, Tina", "qualifier": "person"},
                     "affl": ["ACME Corp."],
                 },
             ],

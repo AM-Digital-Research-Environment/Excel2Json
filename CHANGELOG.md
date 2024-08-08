@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project loosely adheres to a date-based versioning scheme.
 
+## 2024-08-08
+
+### Changed
+
+* **Person qualifier!** Rather than setting the qualifier to `None` (and `null` in MongoDB) for persons, a new qualifier `person` is introduced.
+
+### Added
+
+* **`--whoami` flag required!** For the insert-subcommand, passing a personal identifier of the curator excercising the import is required; this will be stored in MongoDB in the `updatedBy`-field in the project collection 
+
 ## 2024-08-06
 
 ### Changed
