@@ -47,12 +47,12 @@ Be sure to pass your personal identifier (e.g., initials) to the `--whoami` flag
 #### Example
 
 ``` shell
-$ python cli.py insert \
+$ python -m Excel2Json insert \
     --whoami JaneDoe \
     --connection mongodb://root:example@mongo \
     --target projects_metadata_ubt_TEST.sample_project \
-    -project-id aaa \
-    -dspace-id 01 \
+    --project-id aaa \
+    --dspace-id 01 \
     --dry-run \
     sample.xlsx
 ```
@@ -67,7 +67,7 @@ The `--dry-run`-flag can be used to test things out, it will not perform any ins
 #### Example
 
 ``` shell
-$ python cli.py sync \
+$ python -m Excel2Json sync \
     --connection mongodb://root:example@mongo \
     --from projects_metadata_ubt_TEST.sample_project \
     --target persons \
