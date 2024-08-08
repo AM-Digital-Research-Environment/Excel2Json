@@ -19,6 +19,14 @@ app = typer.Typer(help="A CLI wrapper for metadata management")
 @app.command()
 def insert(
     file: Annotated[Path, typer.Argument(help="The Excel file to ingest")],
+    whoami: Annotated[
+        str,
+        typer.Option(
+            "--whoami",
+            "-w",
+            help="Your initials; will be stored in the `updatedBy` field in MongoDB",
+        ),
+    ],
     connection: Annotated[
         str,
         typer.Option(
@@ -55,6 +63,7 @@ def insert(
     If --dry-run is passed, it will only perform the wrangling and not insert
     anything.
     """
+    assert len(whoami) > 0
     parts = target.split(".")
     assert len(parts) == 2
     db_name = parts[0]
@@ -82,7 +91,7 @@ def insert(
     for doc in track(data, "Setting metadata and inserting..."):
         doc["createdAt"] = datetime.now()
         doc["updatedAt"] = datetime.now()
-        doc["updatedBy"] = "JaneDoe"
+        doc["updatedBy"] = whoami
 
         if dry_run:
             continue

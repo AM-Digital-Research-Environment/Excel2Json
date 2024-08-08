@@ -15,6 +15,7 @@ from .types import dictionary, collection
 class Qualifiers(enum.Enum):
     INSTITUTION = "institution"
     GROUP = "group"
+    PERSON = "person"
 
 class ValueList(object):
     def __init__(self, auth_string: str | None, db_name: str, col_name: str, dev_list: str, client: MongoClient | None = None):
@@ -47,7 +48,7 @@ class ValueList(object):
     def handle_persons(coll: Iterable[collection.Role]) -> list[dictionary.PersonItem]:
         persons = defaultdict(set)
         for item in coll:
-            if item['name']['qualifier'] is not None:
+            if item['name']['qualifier'] is not Qualifiers.PERSON.value:
                 continue
 
             # touch the key so that we can add to the set provided by the default factory
