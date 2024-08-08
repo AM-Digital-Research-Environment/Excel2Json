@@ -48,7 +48,7 @@ class ValueList(object):
     def handle_persons(coll: Iterable[collection.Role]) -> list[dictionary.PersonItem]:
         persons = defaultdict(set)
         for item in coll:
-            if item['name']['qualifier'] is not Qualifiers.PERSON.value:
+            if item['name']['qualifier'] != Qualifiers.PERSON.value:
                 continue
 
             # touch the key so that we can add to the set provided by the default factory
