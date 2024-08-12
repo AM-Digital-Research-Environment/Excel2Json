@@ -76,9 +76,15 @@ class ValueList(object):
             out = [i.strip() for i in institutions if i.strip()]
 
             # Second pass: get all names containing an "institution qualifier"
-            names = self._ref_col.distinct(
-                "name.name.label", filter={"name.name.qualifier": Qualifiers.INSTITUTION.value}
+            results = self._ref_col.find(
+                {"name.name.qualifier": Qualifiers.INSTITUTION.value},
+                {"name.name.qualifier": True, "name.name.label": True}
             )
+            # this collection may still contain embedded documents with the
+            # "group" qualifier, so filter those out
+            names = [
+                name["name"]["label"] for res in results for name in res["name"] if name["name"]["qualifier"] == Qualifiers.INSTITUTION.value
+            ]
 
             out.extend([n.strip() for n in names if n.strip()])
 
