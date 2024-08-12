@@ -64,7 +64,8 @@ class ExportJson(object):
                     # Security Level
                     'security': row['security_level'],
                     # Collection
-                    'isCollection': self.boolclean(row['collection']),
+                    #'isCollection': self.boolclean(row['collection']),
+                    'collection': self.list_cleanup(row['collection'], []),
                     # Sponsor
                     'sponsor': self.list_cleanup(row['sponsor'], []),
                     # Project
