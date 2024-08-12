@@ -132,7 +132,8 @@ class ValueList(object):
                 test = self._update_col.find({"name.name": item["name"]["name"]})
                 if test is not None:
                     for t in test:
-                        self._printer.info(f"Existing person found: {t["name"]["name"]}")
+                        #self._printer.info(f"Existing person found: {t["name"]["name"]}")
+                        self._printer.info(f"Existing person found: {t.get('name')['name']}")
                         print(compare_dicts(item, t))
                         # update the item with the set-union of affiliations
                         mongo_affils = set(t["name"]["affiliation"])
