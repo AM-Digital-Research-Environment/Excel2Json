@@ -1,16 +1,17 @@
 # Libraries
-from collections import defaultdict
-import enum
-from typing import Any, Iterable, List, Mapping
-from pymongo import MongoClient
-import pandas as pd
-import re
 import difflib
+import enum
 import pprint
-
-from wasabi import Printer
 import warnings
-from .types import dictionary, collection
+from collections import defaultdict
+from typing import Any, Iterable, List
+
+import pandas as pd
+from pymongo import MongoClient
+from wasabi import Printer
+
+from .types import collection, dictionary
+
 
 class Qualifiers(enum.Enum):
     INSTITUTION = "institution"
