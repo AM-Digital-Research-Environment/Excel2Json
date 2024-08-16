@@ -4,10 +4,11 @@ import enum
 import pprint
 import warnings
 from collections import defaultdict
-from typing import Any, Iterable, List
+from collections.abc import Iterable
+from typing import Any
 
 import pandas as pd
-from pymongo import MongoClient
+import pymongo
 from wasabi import Printer
 
 from .types import collection, dictionary
@@ -19,9 +20,12 @@ class Qualifiers(enum.Enum):
     PERSON = "person"
 
 class ValueList(object):
-    def __init__(self, auth_string: str | None, db_name: str, col_name: str, dev_list: str, client: MongoClient | None = None):
+    def __init__(self, auth_string: str | None, db_name: str, col_name: str, dev_list: str, client: pymongo.MongoClient | None = None):
 
         if auth_string is not None:
+            if client is not None:
+                raise ValueError("Cannot specify both 'auth_string' and 'client'. Only pass 'client'.")
+
             warnings.warn(
                 "Passing the 'auth_string'-parameter to ValueList() is deprecated. "
                 "Pass an authenticated MongoClient in the 'client'-parameter instead",
@@ -29,15 +33,13 @@ class ValueList(object):
                 stacklevel=2
             )
 
-            if client is not None:
-                raise ValueError("Cannot specify both 'auth_string' and 'client'. Only pass 'client'.")
 
-            self._client = MongoClient(auth_string)
+            self._client = pymongo.MongoClient(auth_string)
 
-        if client is None:
+        elif client is None:
             raise ValueError("The 'client'-parameter is required.")
-
-        self._client = client
+        else:
+            self._client = client
 
         self._dev_list = dev_list
         self._ref_col = self._client[db_name][col_name]
@@ -65,7 +67,7 @@ class ValueList(object):
 
 
     # Persons in reference collection
-    def in_collection(self) -> List[Any]:
+    def in_collection(self) -> list[Any]:
         if self._dev_list == 'persons':
             results = self._ref_col.distinct("name")
 

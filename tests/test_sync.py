@@ -1,3 +1,7 @@
+import mongomock
+import pymongo
+import pytest
+
 from Excel2Json import ValueSync
 
 
@@ -119,3 +123,38 @@ class TestPersonHandling(object):
                 r["affiliation"] = sorted(r["affiliation"])
 
             assert left == right, f"Failed: {case['desc']}"
+
+
+class TestValuelist(object):
+    @mongomock.patch(servers=(("test.com", 27017),))
+    def test_it_can_be_initialized_with_an_authString(self):
+        with pytest.deprecated_call():
+            vl = ValueSync.ValueList(
+                "mongodb://test.com:27017",
+                "testDatabase",
+                "testCollection",
+                "testlist",
+            )
+        assert isinstance(vl, ValueSync.ValueList)
+
+    @mongomock.patch(servers=(("test.com", 27017),))
+    def test_it_cant_be_initialized_with_an_authString_and_a_client(self):
+        with pytest.raises(ValueError):
+            vl = ValueSync.ValueList(
+                "mongodb://test.com:27017",
+                "testDatabase",
+                "testCollection",
+                "testlist",
+                pymongo.MongoClient("test.com:27017")
+            )
+
+    @mongomock.patch(servers=(("test.com", 27017),))
+    def test_it_cant_be_a_preconfigured_client(self):
+        vl = ValueSync.ValueList(
+            None,
+            "testDatabase",
+            "testCollection",
+            "testlist",
+            pymongo.MongoClient("test.com:27017")
+        )
+        assert isinstance(vl, ValueSync.ValueList)
