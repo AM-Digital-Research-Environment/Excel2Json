@@ -1,12 +1,13 @@
-from typing import Optional, TypedDict
+from collections.abc import Iterable
+from typing import TypedDict
 
 
 class Name(TypedDict):
     label: str
-    qualifier: Optional[str]
+    qualifier: str | None
 
 
 class Role(TypedDict):
     role: str
     name: Name
-    affl: list[str]
+    affl: Iterable[str]
