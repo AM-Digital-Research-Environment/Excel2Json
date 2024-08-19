@@ -429,10 +429,8 @@ class TestSynchronisation(object):
 
         person_result_schema = {
             "_id": mongomock.ObjectId,
-            "name": {
-                "name": str,
-                "affiliation": list,
-            },
+            "name": str,
+            "affiliation": list,
         }
 
         sync_result = syncer.synchronise()
@@ -474,8 +472,8 @@ class TestSynchronisation(object):
         dev_collection = list(client.dev.persons.find())
         assert len(dev_collection) == 1
         for item in dev_collection:
-            assert item["name"]["name"] == "Doe, Jane"
-            assert item["name"]["affiliation"] == ["Giga Group"]
+            assert item["name"] == "Doe, Jane"
+            assert item["affiliation"] == ["Giga Group"]
 
     def test_missing_person_is_inserted_into_primed_dev_collection(self):
         client = mongomock.MongoClient()
@@ -484,10 +482,8 @@ class TestSynchronisation(object):
         personCollection = client.dev.persons
         persons = [
             {
-                "name": {
-                    "name": "Doe, Jane",
-                    "affiliation": ["ACME Corp."],
-                }
+                "name": "Doe, Jane",
+                "affiliation": ["ACME Corp."],
             },
         ]
         for obj in persons:
@@ -523,10 +519,10 @@ class TestSynchronisation(object):
 
         assert len(dev_collection) == 2
 
-        assert dev_collection[0]["name"]["name"] == "Doe, Jane"
-        assert dev_collection[0]["name"]["affiliation"] == ["ACME Corp."]
-        assert dev_collection[1]["name"]["name"] == "Doe, John"
-        assert dev_collection[1]["name"]["affiliation"] == []
+        assert dev_collection[0]["name"] == "Doe, Jane"
+        assert dev_collection[0]["affiliation"] == ["ACME Corp."]
+        assert dev_collection[1]["name"] == "Doe, John"
+        assert dev_collection[1]["affiliation"] == []
 
     def test_existing_person_is_updated_with_new_affiliations(self, capfd):
         client = mongomock.MongoClient()
@@ -535,10 +531,8 @@ class TestSynchronisation(object):
         personCollection = client.dev.persons
         persons = [
             {
-                "name": {
-                    "name": "Doe, Jane",
-                    "affiliation": ["ACME Corp."],
-                }
+                "name": "Doe, Jane",
+                "affiliation": ["ACME Corp."],
             },
         ]
         for obj in persons:
@@ -575,8 +569,8 @@ class TestSynchronisation(object):
 
         assert len(dev_collection) == 1
 
-        assert dev_collection[0]["name"]["name"] == "Doe, Jane"
-        assert sorted(dev_collection[0]["name"]["affiliation"]) == [
+        assert dev_collection[0]["name"] == "Doe, Jane"
+        assert sorted(dev_collection[0]["affiliation"]) == [
             "ACME Corp.",
             "Giga Group",
         ]
