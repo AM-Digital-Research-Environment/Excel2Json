@@ -168,14 +168,12 @@ An incomplete schema for documents inside MongoDB.
 ``` json-with-comments
 {
     "_id_": ObjectId,                 // internal MongoDB ID
-    "name": {
-        "name": string,               // the name of the person
-        "affiliation": Array<string>  // their affiliations; may be empty; unique values
-    }
+    "name": string,               // the name of the person
+    "affiliation": Array<string>  // their affiliations; may be empty; unique values
 }
 ```
 
-A query for all distinct names thus looks like `db.persons.distinct("name.name")`.
+A query for all distinct names thus looks like `db.persons.distinct("name")`.
 
 ### `groups`
 
