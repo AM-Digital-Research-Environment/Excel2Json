@@ -1,6 +1,7 @@
 import mongomock
 import pymongo
 import pytest
+import pytest_schema
 
 from Excel2Json import ValueSync
 
@@ -403,6 +404,46 @@ class TestSynchronisation(object):
         assert result
         assert "No documents found to insert" in captured.out
 
+    def test_person_schema_in_dev_collection(self):
+        client = mongomock.MongoClient()
+
+        # prime the project collection, dev collection is left empty
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ["Giga Group"],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        person_result_schema = {
+            "_id": mongomock.ObjectId,
+            "name": {
+                "name": str,
+                "affiliation": list,
+            },
+        }
+
+        sync_result = syncer.synchronise()
+
+        assert sync_result
+
+        dev_collection = list(client.dev.persons.find())
+
+        assert len(dev_collection) == 1
+        assert pytest_schema.exact_schema(person_result_schema) == dev_collection[0]
+
     def test_missing_person_is_inserted_into_empty_dev_collection(self):
         client = mongomock.MongoClient()
 
@@ -433,10 +474,6 @@ class TestSynchronisation(object):
         dev_collection = list(client.dev.persons.find())
         assert len(dev_collection) == 1
         for item in dev_collection:
-            assert "name" in item
-            assert "name" in item["name"]
-            assert "affiliation" in item["name"]
-
             assert item["name"]["name"] == "Doe, Jane"
             assert item["name"]["affiliation"] == ["Giga Group"]
 
@@ -485,10 +522,6 @@ class TestSynchronisation(object):
         dev_collection = sorted(dev_collection, key=lambda x: x["name"]["name"])
 
         assert len(dev_collection) == 2
-        for item in dev_collection:
-            assert "name" in item
-            assert "name" in item["name"]
-            assert "affiliation" in item["name"]
 
         assert dev_collection[0]["name"]["name"] == "Doe, Jane"
         assert dev_collection[0]["name"]["affiliation"] == ["ACME Corp."]
@@ -541,11 +574,6 @@ class TestSynchronisation(object):
         assert "Existing person found" in captured.out
 
         assert len(dev_collection) == 1
-
-        for item in dev_collection:
-            assert "name" in item
-            assert "name" in item["name"]
-            assert "affiliation" in item["name"]
 
         assert dev_collection[0]["name"]["name"] == "Doe, Jane"
         assert sorted(dev_collection[0]["name"]["affiliation"]) == [
