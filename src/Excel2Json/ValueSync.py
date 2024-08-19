@@ -130,22 +130,23 @@ class ValueList(object):
         # Potential improvement: use `update_many(...,upsert=True)`
         # https://pymongo.readthedocs.io/en/stable/api/pymongo/collection.html#pymongo.collection.Collection.update_many
         if self._dev_list == "persons":
+            # hoist each item below the "name"-key into the top level
+            insert = [doc["name"] for doc in insert]
             for i, item in enumerate(insert):
                 # look up the person by name
-                test = self._update_col.find({"name.name": item["name"]["name"]})
+                test = self._update_col.find({"name": item["name"]})
                 if test is not None:
                     for t in test:
-                        #self._printer.info(f"Existing person found: {t["name"]["name"]}")
-                        self._printer.info(f"Existing person found: {t.get('name')['name']}")
+                        self._printer.info(f"Existing person found: {t['name']}")
                         print(compare_dicts(item, t))
                         # update the item with the set-union of affiliations
-                        mongo_affils = set(t["name"]["affiliation"])
-                        project_affils = set(item["name"]["affiliation"])
+                        mongo_affils = set(t["affiliation"])
+                        project_affils = set(item["affiliation"])
                         # make sure to convert back to list
                         merged_affils = list(mongo_affils | project_affils)
                         # update based on retrieved ID
                         result = self._update_col.update_one(
-                            {"_id": t["_id"]}, {"$set": {"name.affiliation": merged_affils}}
+                            {"_id": t["_id"]}, {"$set": {"affiliation": merged_affils}}
                         )
                         if result.modified_count == 0:
                             self._printer.fail(f"Error while updating item with ID {t['_id']}")
