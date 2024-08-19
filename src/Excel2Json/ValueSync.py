@@ -93,9 +93,15 @@ class ValueList(object):
 
             return sorted(set(out))
         elif self._dev_list == 'groups':
-            names = self._ref_col.distinct(
-                "name.name.label", filter={"name.name.qualifier": Qualifiers.GROUP.value}
+            names = self._ref_col.find(
+                {"name.name.qualifier": Qualifiers.GROUP.value},
+                {"name.name.qualifier": True, "name.name.label": True}
             )
+            # this collection may still contain embedded documents with the
+            # "institution" or "person" qualifier, so filter those out
+            names = set([
+                name["name"]["label"] for res in names for name in res["name"] if name["name"]["qualifier"] == Qualifiers.GROUP.value
+            ])
 
             return sorted([n.strip() for n in names if n.strip()])
         else:
