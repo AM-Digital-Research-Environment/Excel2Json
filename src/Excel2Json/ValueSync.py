@@ -1,16 +1,18 @@
 # Libraries
-from collections import defaultdict
-import enum
-from typing import Any, Iterable, List, Mapping
-from pymongo import MongoClient
-import pandas as pd
-import re
 import difflib
+import enum
 import pprint
-
-from wasabi import Printer
 import warnings
-from .types import dictionary, collection
+from collections import defaultdict
+from collections.abc import Iterable
+from typing import Any
+
+import pandas as pd
+import pymongo
+from wasabi import Printer
+
+from .types import collection, dictionary
+
 
 class Qualifiers(enum.Enum):
     INSTITUTION = "institution"
@@ -18,9 +20,12 @@ class Qualifiers(enum.Enum):
     PERSON = "person"
 
 class ValueList(object):
-    def __init__(self, auth_string: str | None, db_name: str, col_name: str, dev_list: str, client: MongoClient | None = None):
+    def __init__(self, auth_string: str | None, db_name: str, col_name: str, dev_list: str, client: pymongo.MongoClient | None = None):
 
         if auth_string is not None:
+            if client is not None:
+                raise ValueError("Cannot specify both 'auth_string' and 'client'. Only pass 'client'.")
+
             warnings.warn(
                 "Passing the 'auth_string'-parameter to ValueList() is deprecated. "
                 "Pass an authenticated MongoClient in the 'client'-parameter instead",
@@ -28,15 +33,13 @@ class ValueList(object):
                 stacklevel=2
             )
 
-            if client is not None:
-                raise ValueError("Cannot specify both 'auth_string' and 'client'. Only pass 'client'.")
 
-            self._client = MongoClient(auth_string)
+            self._client = pymongo.MongoClient(auth_string)
 
-        if client is None:
+        elif client is None:
             raise ValueError("The 'client'-parameter is required.")
-
-        self._client = client
+        else:
+            self._client = client
 
         self._dev_list = dev_list
         self._ref_col = self._client[db_name][col_name]
@@ -64,7 +67,7 @@ class ValueList(object):
 
 
     # Persons in reference collection
-    def in_collection(self) -> List[Any]:
+    def in_collection(self) -> list[Any]:
         if self._dev_list == 'persons':
             results = self._ref_col.distinct("name")
 
@@ -127,22 +130,23 @@ class ValueList(object):
         # Potential improvement: use `update_many(...,upsert=True)`
         # https://pymongo.readthedocs.io/en/stable/api/pymongo/collection.html#pymongo.collection.Collection.update_many
         if self._dev_list == "persons":
+            # hoist each item below the "name"-key into the top level
+            insert = [doc["name"] for doc in insert]
             for i, item in enumerate(insert):
                 # look up the person by name
-                test = self._update_col.find({"name.name": item["name"]["name"]})
+                test = self._update_col.find({"name": item["name"]})
                 if test is not None:
                     for t in test:
-                        #self._printer.info(f"Existing person found: {t["name"]["name"]}")
-                        self._printer.info(f"Existing person found: {t.get('name')['name']}")
+                        self._printer.info(f"Existing person found: {t['name']}")
                         print(compare_dicts(item, t))
                         # update the item with the set-union of affiliations
-                        mongo_affils = set(t["name"]["affiliation"])
-                        project_affils = set(item["name"]["affiliation"])
+                        mongo_affils = set(t["affiliation"])
+                        project_affils = set(item["affiliation"])
                         # make sure to convert back to list
                         merged_affils = list(mongo_affils | project_affils)
                         # update based on retrieved ID
                         result = self._update_col.update_one(
-                            {"_id": t["_id"]}, {"$set": {"name.affiliation": merged_affils}}
+                            {"_id": t["_id"]}, {"$set": {"affiliation": merged_affils}}
                         )
                         if result.modified_count == 0:
                             self._printer.fail(f"Error while updating item with ID {t['_id']}")
