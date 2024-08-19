@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project loosely adheres to a date-based versioning scheme.
 
+## 2024-08-19
+
+### Changed
+
+* **Person schema!** The dev-collection "persons" now conforms to a schema with no additional nesting, effectively placing a person's name directly in `doc["name"]`, and the affiliation in `doc["affiliation"]`, thereby getting rid of the extra indirection via a top-level "name"-property.
+
+### Added
+
+* **Tests!** Most of the check-then-sync-behaviour around persons is covered by unit tests; use `pytest` to run them.
+
 ## 2024-08-08
 
 ### Changed
@@ -13,7 +23,7 @@ This project loosely adheres to a date-based versioning scheme.
 
 ### Added
 
-* **`--whoami` flag required!** For the insert-subcommand, passing a personal identifier of the curator excercising the import is required; this will be stored in MongoDB in the `updatedBy`-field in the project collection 
+* **`--whoami` flag required!** For the insert-subcommand, passing a personal identifier of the curator exercising the import is required; this will be stored in MongoDB in the `updatedBy`-field in the project collection 
 
 ## 2024-08-06
 
