@@ -515,7 +515,7 @@ class TestSynchronisation(object):
 
         dev_collection = list(client.dev.persons.find())
         # sort for deterministic retrieval
-        dev_collection = sorted(dev_collection, key=lambda x: x["name"]["name"])
+        dev_collection = sorted(dev_collection, key=lambda x: x["name"])
 
         assert len(dev_collection) == 2
 
