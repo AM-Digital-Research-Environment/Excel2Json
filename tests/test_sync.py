@@ -137,24 +137,418 @@ class TestValuelist(object):
             )
         assert isinstance(vl, ValueSync.ValueList)
 
-    @mongomock.patch(servers=(("test.com", 27017),))
+    def test_it_can_be_initialized_with_a_preconfigured_client(self):
+        vl = ValueSync.ValueList(
+            None, "testDatabase", "testCollection", "testlist", mongomock.MongoClient()
+        )
+        assert isinstance(vl, ValueSync.ValueList)
+
     def test_it_cant_be_initialized_with_an_authString_and_a_client(self):
         with pytest.raises(ValueError):
-            vl = ValueSync.ValueList(
+            _ = ValueSync.ValueList(
                 "mongodb://test.com:27017",
                 "testDatabase",
                 "testCollection",
                 "testlist",
-                pymongo.MongoClient("test.com:27017")
+                mongomock.MongoClient(),
             )
 
+    def test_it_cant_be_initialized_without_authstring_and_client(self):
+        with pytest.raises(ValueError):
+            _ = ValueSync.ValueList(
+                None, "testDatabase", "testCollection", "testlist", None
+            )
+
+
+class TestCollectionChecks(object):
     @mongomock.patch(servers=(("test.com", 27017),))
-    def test_it_cant_be_a_preconfigured_client(self):
-        vl = ValueSync.ValueList(
+    def test_collection_check_returns_no_results_when_project_collection_is_empty(self):
+        syncer = ValueSync.ValueList(
             None,
             "testDatabase",
-            "testCollection",
-            "testlist",
-            pymongo.MongoClient("test.com:27017")
+            "testProject",
+            "persons",
+            pymongo.MongoClient("test.com:27017"),
         )
-        assert isinstance(vl, ValueSync.ValueList)
+
+        results = syncer.in_collection()
+        assert len(results) == 0
+
+    def test_collection_check_returns_only_items_qualified_with_PERSON(self):
+        client = mongomock.MongoClient("test.com:27017")
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "ACME Group", "qualifier": "group"},
+                        "affl": [],
+                        "role": "Tester",
+                    }
+                ]
+            },
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": [],
+                        "role": "Tester",
+                    },
+                    {
+                        "name": {"label": "Doe, John", "qualifier": "person"},
+                        "affl": ["ACME Corp."],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        results = syncer.in_collection()
+
+        assert len(results) == 2
+
+        # sort for deterministic retrieval
+        results = sorted(results, key=lambda x: x["name"])
+
+        assert results[0]["name"] == "Doe, Jane"
+        assert results[0]["affiliation"] == []
+        assert results[1]["name"] == "Doe, John"
+        assert results[1]["affiliation"] == ["ACME Corp."]
+
+
+class TestMissingChecks(object):
+    def test_empty_dev_collection_and_empty_project_return_no_missing_items(self):
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", mongomock.MongoClient()
+        )
+
+        results = syncer.check_missing()
+        assert len(results) == 0
+
+    def test_empty_dev_collection_returns_all_new_items_as_missing(self):
+        client = mongomock.MongoClient()
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "ACME Group", "qualifier": "group"},
+                        "affl": [],
+                        "role": "Tester",
+                    }
+                ]
+            },
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": [],
+                        "role": "Tester",
+                    },
+                    {
+                        "name": {"label": "Doe, John", "qualifier": "person"},
+                        "affl": ["ACME Corp."],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        results = syncer.check_missing()
+
+        assert len(results) == 2
+
+        # sort for deterministic retrieval
+        results = sorted(results, key=lambda x: x["name"])
+
+        assert results[0]["name"] == "Doe, Jane"
+        assert results[0]["affiliation"] == []
+        assert results[1]["name"] == "Doe, John"
+        assert results[1]["affiliation"] == ["ACME Corp."]
+
+    def test_primed_dev_collection_returns_only_new_items_as_missing(self):
+        client = mongomock.MongoClient()
+
+        # prime the dev collection with existing persons
+        personCollection = client.dev.persons
+        persons = [
+            {
+                "name": {
+                    "name": "Doe, Jane",
+                    "affiliation": [],
+                }
+            },
+            {
+                "name": {
+                    "name": "Doe, John",
+                    "affiliation": ["ACME Corp."],
+                }
+            },
+        ]
+        for obj in persons:
+            obj["_id"] = personCollection.insert_one(obj).inserted_id
+
+        # prime the project collection with an overlap with persons
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": [],
+                        "role": "Tester",
+                    },
+                    {
+                        "name": {"label": "Doe, John", "qualifier": "person"},
+                        "affl": ["ACME Corp."],
+                        "role": "Tester",
+                    },
+                ]
+            },
+            {
+                "name": [
+                    {
+                        "name": {"label": "Test, Test", "qualifier": "person"},
+                        "affl": ["Giga Group"],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        results = syncer.check_missing()
+
+        assert len(results) == 1
+
+        # sort for deterministic retrieval
+        results = sorted(results, key=lambda x: x["name"])
+
+        assert results[0]["name"] == "Test, Test"
+        assert results[0]["affiliation"] == ["Giga Group"]
+
+    def test_an_existing_person_with_a_new_affiliation_is_marked_as_missing(self):
+        client = mongomock.MongoClient()
+
+        # prime the dev collection with existing persons
+        personCollection = client.dev.persons
+        persons = [
+            {
+                "name": {
+                    "name": "Doe, Jane",
+                    "affiliation": ["ACME Corp."],
+                }
+            },
+        ]
+        for obj in persons:
+            obj["_id"] = personCollection.insert_one(obj).inserted_id
+
+        # prime the project collection with an overlap with persons
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ["Giga Group"],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        results = syncer.check_missing()
+
+        assert len(results) == 1
+
+        # sort for deterministic retrieval
+        results = sorted(results, key=lambda x: x["name"])
+
+        assert results[0]["name"] == "Doe, Jane"
+        assert results[0]["affiliation"] == ["Giga Group"]
+
+
+class TestSynchronisation(object):
+    def test_no_missing_entities_return_early(self, capfd):
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", mongomock.MongoClient()
+        )
+
+        # call synchronise() without priming MongoDB
+        result = syncer.synchronise()
+        captured = capfd.readouterr()
+        assert result
+        assert "No documents found to insert" in captured.out
+
+    def test_missing_person_is_inserted_into_empty_dev_collection(self):
+        client = mongomock.MongoClient()
+
+        # prime the project collection, dev collection is left empty
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ["Giga Group"],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        sync_result = syncer.synchronise()
+
+        assert sync_result
+
+        dev_collection = list(client.dev.persons.find())
+        assert len(dev_collection) == 1
+        for item in dev_collection:
+            assert "name" in item
+            assert "name" in item["name"]
+            assert "affiliation" in item["name"]
+
+            assert item["name"]["name"] == "Doe, Jane"
+            assert item["name"]["affiliation"] == ["Giga Group"]
+
+    def test_missing_person_is_inserted_into_primed_dev_collection(self):
+        client = mongomock.MongoClient()
+
+        # prime the dev collection with existing persons
+        personCollection = client.dev.persons
+        persons = [
+            {
+                "name": {
+                    "name": "Doe, Jane",
+                    "affiliation": ["ACME Corp."],
+                }
+            },
+        ]
+        for obj in persons:
+            obj["_id"] = personCollection.insert_one(obj).inserted_id
+
+        # prime the project collection, dev collection is left empty
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, John", "qualifier": "person"},
+                        "affl": [],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        sync_result = syncer.synchronise()
+
+        assert sync_result
+
+        dev_collection = list(client.dev.persons.find())
+        # sort for deterministic retrieval
+        dev_collection = sorted(dev_collection, key=lambda x: x["name"]["name"])
+
+        assert len(dev_collection) == 2
+        for item in dev_collection:
+            assert "name" in item
+            assert "name" in item["name"]
+            assert "affiliation" in item["name"]
+
+        assert dev_collection[0]["name"]["name"] == "Doe, Jane"
+        assert dev_collection[0]["name"]["affiliation"] == ["ACME Corp."]
+        assert dev_collection[1]["name"]["name"] == "Doe, John"
+        assert dev_collection[1]["name"]["affiliation"] == []
+
+    def test_existing_person_is_updated_with_new_affiliations(self, capfd):
+        client = mongomock.MongoClient()
+
+        # prime the dev collection with existing persons
+        personCollection = client.dev.persons
+        persons = [
+            {
+                "name": {
+                    "name": "Doe, Jane",
+                    "affiliation": ["ACME Corp."],
+                }
+            },
+        ]
+        for obj in persons:
+            obj["_id"] = personCollection.insert_one(obj).inserted_id
+
+        # prime the project collection, dev collection is left empty
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ["Giga Group"],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        sync_result = syncer.synchronise()
+
+        assert sync_result
+
+        dev_collection = list(client.dev.persons.find())
+
+        captured = capfd.readouterr()
+        assert "Existing person found" in captured.out
+
+        assert len(dev_collection) == 1
+
+        for item in dev_collection:
+            assert "name" in item
+            assert "name" in item["name"]
+            assert "affiliation" in item["name"]
+
+        assert dev_collection[0]["name"]["name"] == "Doe, Jane"
+        assert sorted(dev_collection[0]["name"]["affiliation"]) == [
+            "ACME Corp.",
+            "Giga Group",
+        ]
