@@ -35,6 +35,7 @@ dev-dependencies = [
     "pytest>=8.3.2",
     "coverage>=7.6.1",
     "mongomock @ git+https://github.com/mongomock/mongomock.git",
+    "pytest-schema>=0.1.2",
 ]
 
 [tool.rye.scripts]
