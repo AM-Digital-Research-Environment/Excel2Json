@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project loosely adheres to a date-based versioning scheme.
 
+## 2024-08-20
+
+### Changed
+
+* [*BREAKING*] **Python version!** This package now requires at least Python 3.10, due to use of the `match-case` control flow expression.
+
+### Fixed
+
+* **Idempotent update for person-affiliations** If a person exists in the dev collection, and has the same affiliations as the incoming person, MongoDB won't actually perform an update. There was a check in the code that was throwing weird errors in this case.
+
 ## 2024-08-19
 
 ### Changed
