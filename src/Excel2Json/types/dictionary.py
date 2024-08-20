@@ -1,5 +1,5 @@
 
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 
 class PersonItem(TypedDict):

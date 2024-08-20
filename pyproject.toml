@@ -36,10 +36,11 @@ dev-dependencies = [
     "coverage>=7.6.1",
     "mongomock @ git+https://github.com/mongomock/mongomock.git",
     "pytest-schema>=0.1.2",
+    "mypy>=1.11.1",
 ]
 
 [tool.rye.scripts]
-requirements = "sed '/^-e/d; /^#/d; /^$/d' requirements.lock"
+requirements = "sed '/^-e/d; /^#/d; /^$/d' requirements-dev.lock"
 
 [tool.hatch.metadata]
 allow-direct-references = true
@@ -52,3 +53,6 @@ addopts = [
     "--import-mode=importlib",
     "--testdox"
 ]
+
+[tool.mypy]
+disable_error_code = "import-untyped"
