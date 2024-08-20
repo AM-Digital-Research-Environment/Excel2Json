@@ -524,6 +524,8 @@ class TestSynchronisation(object):
         assert dev_collection[1]["name"] == "Doe, John"
         assert dev_collection[1]["affiliation"] == []
 
+
+class TestAffiliationMerge(object):
     def test_existing_person_is_updated_with_new_affiliations(self, capfd):
         client = mongomock.MongoClient()
 
@@ -573,4 +575,175 @@ class TestSynchronisation(object):
         assert sorted(dev_collection[0]["affiliation"]) == [
             "ACME Corp.",
             "Giga Group",
+        ]
+
+    def test_multiple_occurences_of_the_same_person_in_project_collection_is_saved_with_merged_affiliations(self):
+        client = mongomock.MongoClient()
+
+        # prime the dev collection with existing persons
+        personCollection = client.dev.persons
+        persons = [
+            {
+                "name": "Doe, Jane",
+                "affiliation": ["Foo PLC"],
+            },
+        ]
+        for obj in persons:
+            obj["_id"] = personCollection.insert_one(obj).inserted_id
+
+        # prime the project collection, dev collection is left empty
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ["Giga Group"],
+                        "role": "Tester",
+                    },
+                ]
+            },
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ["ACME Corp."],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        sync_result = syncer.synchronise()
+
+        assert sync_result
+
+        dev_collection = list(client.dev.persons.find())
+
+        # captured = capfd.readouterr()
+        # assert "Existing person found" in captured.out
+
+        assert len(dev_collection) == 1
+
+        assert dev_collection[0]["name"] == "Doe, Jane"
+        assert sorted(dev_collection[0]["affiliation"]) == [
+            "ACME Corp.",
+            "Foo PLC",
+            "Giga Group",
+        ]
+
+    def test_existing_person_with_no_affiliations_is_updated(self):
+        client = mongomock.MongoClient()
+
+        # prime the dev collection with existing persons
+        personCollection = client.dev.persons
+        persons = [
+            {
+                "name": "Doe, Jane",
+                "affiliation": [],
+            },
+        ]
+        for obj in persons:
+            obj["_id"] = personCollection.insert_one(obj).inserted_id
+
+        # prime the project collection, dev collection is left empty
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ["Giga Group"],
+                        "role": "Tester",
+                    },
+                ]
+            },
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ["ACME Corp."],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        sync_result = syncer.synchronise()
+
+        assert sync_result
+
+        dev_collection = list(client.dev.persons.find())
+
+        # captured = capfd.readouterr()
+        # assert "Existing person found" in captured.out
+
+        assert len(dev_collection) == 1
+
+        assert dev_collection[0]["name"] == "Doe, Jane"
+        assert sorted(dev_collection[0]["affiliation"]) == [
+            "ACME Corp.",
+            "Giga Group",
+        ]
+
+    def test_existing_person_with_same_affiliation_is_updated(self):
+        client = mongomock.MongoClient()
+
+        # prime the dev collection with existing persons
+        personCollection = client.dev.persons
+        persons = [
+            {
+                "name": "Doe, Jane",
+                "affiliation": ["ACME Corp."],
+            },
+        ]
+        for obj in persons:
+            obj["_id"] = personCollection.insert_one(obj).inserted_id
+
+        # prime the project collection, dev collection is left empty
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ["ACME Corp."],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        sync_result = syncer.synchronise()
+
+        assert sync_result
+
+        dev_collection = list(client.dev.persons.find())
+
+        # captured = capfd.readouterr()
+        # assert "Existing person found" in captured.out
+
+        assert len(dev_collection) == 1
+
+        assert dev_collection[0]["name"] == "Doe, Jane"
+        assert sorted(dev_collection[0]["affiliation"]) == [
+            "ACME Corp.",
         ]
