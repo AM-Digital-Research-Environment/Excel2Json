@@ -1,6 +1,5 @@
-from collections import defaultdict
-from typing import Tuple
 import time
+from typing import Tuple
 
 import requests
 from wasabi import Printer
