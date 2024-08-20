@@ -169,13 +169,10 @@ class ValueList(object):
                         # make sure to convert back to list
                         merged_affils = list(mongo_affils | project_affils)
                         # update based on retrieved ID
-                        result = self._update_col.update_one(
+                        self._update_col.update_one(
                             {"_id": t["_id"]}, {"$set": {"affiliation": merged_affils}}
                         )
-                        if result.modified_count == 0:
-                            self._printer.fail(
-                                f"Error while updating item with ID {t['_id']}"
-                            )
+
                         # delete the current insertable, so that we can still
                         # use `insert_many` for the remaining items
                         del insert[i]
@@ -194,7 +191,15 @@ class ValueList(object):
         return True
 
 
-def compare_dicts(d1, d2):
+def compare_dicts(new, existing):
+    local_d1 = new.copy()
+    local_d2 = existing.copy()
+
+    if "_id" in local_d1:
+        del local_d1["_id"]
+    if "_id" in local_d2:
+        del local_d2["_id"]
+
     return "\n" + "\n".join(
-        difflib.ndiff(pprint.pformat(d1).splitlines(), pprint.pformat(d2).splitlines())
+        difflib.ndiff(pprint.pformat(local_d1).splitlines(), pprint.pformat(local_d2).splitlines())
     )
