@@ -114,16 +114,16 @@ class TestPersonHandling(object):
             },
         ]
 
-        for case in cases:
-            left = case["out"]
-            right = ValueSync.ValueList.handle_persons(case["in"])
+        for c in cases:
+            want = c["out"]
+            have = ValueSync.ValueList.handle_persons(c["in"])
 
-            for l in left:
-                l["affiliation"] = sorted(l["affiliation"])
-            for r in right:
-                r["affiliation"] = sorted(r["affiliation"])
+            for w in want:
+                w["affiliation"] = sorted(w["affiliation"])
+            for h in have:
+                h["affiliation"] = sorted(h["affiliation"])
 
-            assert left == right, f"Failed: {case['desc']}"
+            assert want == have, f"Failed: {c['desc']}"
 
 
 class TestValuelist(object):
@@ -577,7 +577,9 @@ class TestAffiliationMerge(object):
             "Giga Group",
         ]
 
-    def test_multiple_occurences_of_the_same_person_in_project_collection_is_saved_with_merged_affiliations(self):
+    def test_multiple_occurences_of_the_same_person_in_project_collection_is_saved_with_merged_affiliations(
+        self,
+    ):
         client = mongomock.MongoClient()
 
         # prime the dev collection with existing persons
@@ -746,4 +748,70 @@ class TestAffiliationMerge(object):
         assert dev_collection[0]["name"] == "Doe, Jane"
         assert sorted(dev_collection[0]["affiliation"]) == [
             "ACME Corp.",
+        ]
+
+    def test_multiple_existing_persons_with_same_affiliation_are_updated(self):
+        client = mongomock.MongoClient()
+
+        # prime the dev collection with existing persons
+        personCollection = client.dev.persons
+        persons = [
+            {
+                "name": "Doe, Jane",
+                "affiliation": ["ACME Corp."],
+            },
+            {
+                "name": "Doe, John",
+                "affiliation": ["Giga Group"],
+            },
+        ]
+        for obj in persons:
+            obj["_id"] = personCollection.insert_one(obj).inserted_id
+
+        # prime the project collection, dev collection is left empty
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ["ACME Corp."],
+                        "role": "Tester",
+                    },
+                ]
+            },
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, John", "qualifier": "person"},
+                        "affl": ["Giga Group"],
+                        "role": "Tester",
+                    },
+                ]
+            },
+        ]
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "persons", client
+        )
+
+        sync_result = syncer.synchronise()
+
+        assert sync_result
+
+        dev_collection = list(client.dev.persons.find())
+        assert len(dev_collection) == 2
+
+        # sort for deterministic retrieval
+        dev_collection = sorted(dev_collection, key=lambda x: x["name"])
+
+        assert dev_collection[0]["name"] == "Doe, Jane"
+        assert dev_collection[0]["affiliation"] == [
+            "ACME Corp.",
+        ]
+        assert dev_collection[1]["name"] == "Doe, John"
+        assert dev_collection[1]["affiliation"] == [
+            "Giga Group",
         ]
