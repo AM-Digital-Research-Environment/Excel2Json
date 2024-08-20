@@ -49,7 +49,7 @@ class ExportJson(object):
         self.msg = Printer()
         self.loc_client = LocClient()
 
-    def run(self):
+    def run(self):  # noqa: C901
         json_list = []
         with self.msg.loading("Building data list..."):
             for i in range(len(self.data)):
