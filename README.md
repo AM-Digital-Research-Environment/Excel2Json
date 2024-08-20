@@ -7,10 +7,14 @@
 ╚══════╝╚═╝  ╚═╝ ╚═════╝╚══════╝╚══════╝╚══════╝ ╚════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
 ```
 
+![Python versions](https://img.shields.io/badge/Python-3.10_%7C_3.11_%7C_3.12-blue)
+
 # MET-Cleaner
 Repo for the metadata excel table clean-up and parsing script
 
 ## Installation
+
+**Minimum Python version required: 3.10**
 
 These docs cover the typical case of "pip in a virtual environment".
 Your tooling may differ, in which case you should consult the respective docs on installing a package from github that doesn't have a build on PyPI.
