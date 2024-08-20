@@ -161,7 +161,7 @@ class ValueList(object):
                 test = self._update_col.find({"name": item["name"]})
                 if test is not None:
                     for t in test:
-                        self._printer.info(f"Existing person found: {t['name']}")
+                        self._printer.info("Existing person found:", t["name"])
                         print(compare_dicts(item, t))
                         # update the item with the set-union of affiliations
                         mongo_affils = set(t["affiliation"])
@@ -175,19 +175,30 @@ class ValueList(object):
 
                         # delete the current insertable, so that we can still
                         # use `insert_many` for the remaining items
-                        del insert[i]
+                        insert[i] = {}
 
+        insert = [item for item in insert if len(item) != 0]
         if len(insert) == 0:
-            self._printer.good("Successfully Synchronised!")
+            self._printer.good(
+                "Successfully Synchronised!",
+                "No items to insert, but no news is good news.",
+            )
             return True
 
         insert_all_result = self._update_col.insert_many(insert)
 
         if len(insert_all_result.inserted_ids) != len(insert):
-            self._printer.fail("Not all requested documents were inserted!")
+            self._printer.fail(
+                "Not all requested documents were inserted!",
+                f"You requested {len(insert)} objects, but I only inserted {len(insert_all_result.inserted_ids)}.",
+            )
+
             return False
 
-        self._printer.good("Successfully Synchronised!")
+        self._printer.good(
+            "Successfully Synchronised!",
+            f"Inserted {len(insert_all_result.inserted_ids)} objects",
+        )
         return True
 
 
@@ -201,5 +212,7 @@ def compare_dicts(new, existing):
         del local_d2["_id"]
 
     return "\n" + "\n".join(
-        difflib.ndiff(pprint.pformat(local_d1).splitlines(), pprint.pformat(local_d2).splitlines())
+        difflib.ndiff(
+            pprint.pformat(local_d1).splitlines(), pprint.pformat(local_d2).splitlines()
+        )
     )
