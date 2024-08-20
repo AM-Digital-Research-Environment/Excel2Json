@@ -8,6 +8,7 @@
 ```
 
 ![Python versions](https://img.shields.io/badge/Python-3.10_%7C_3.11_%7C_3.12-blue)
+[![Python build](https://github.com/AM-Digital-Research-Environment/Excel2Json/actions/workflows/python-build.yml/badge.svg)](https://github.com/AM-Digital-Research-Environment/Excel2Json/actions/workflows/python-build.yml)
 
 # MET-Cleaner
 Repo for the metadata excel table clean-up and parsing script
