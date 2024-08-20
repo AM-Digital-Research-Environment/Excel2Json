@@ -34,7 +34,7 @@ class ValueList(object):
             )
 
 
-            self._client = pymongo.MongoClient(auth_string)
+            self._client: pymongo.MongoClient[dict[str, Any]] = pymongo.MongoClient(auth_string)
 
         elif client is None:
             raise ValueError("The 'client'-parameter is required.")
@@ -49,7 +49,7 @@ class ValueList(object):
 
     @staticmethod
     def handle_persons(coll: Iterable[collection.Role]) -> list[dictionary.PersonItem]:
-        persons = defaultdict(set)
+        persons: dict[str, set] = defaultdict(set)
         for item in coll:
             if item['name']['qualifier'] != Qualifiers.PERSON.value:
                 continue
@@ -68,44 +68,45 @@ class ValueList(object):
 
     # Persons in reference collection
     def in_collection(self) -> list[Any]:
-        if self._dev_list == 'persons':
-            results = self._ref_col.distinct("name")
+        match self._dev_list:
+            case 'persons':
+                docs_with_person = self._ref_col.distinct("name")
 
-            return self.handle_persons(results)
-        elif self._dev_list == 'institutions':
-            # First pass: get all proper affiliations
-            institutions = list(self._ref_col.distinct("name.affl"))
-            # Cleaning list
-            out = [i.strip() for i in institutions if i.strip()]
+                return self.handle_persons(docs_with_person)
+            case 'institutions':
+                # First pass: get all proper affiliations
+                affiliations_uniq = list(self._ref_col.distinct("name.affl"))
+                # Cleaning list
+                out = [i.strip() for i in affiliations_uniq if i.strip()]
 
-            # Second pass: get all names containing an "institution qualifier"
-            results = self._ref_col.find(
-                {"name.name.qualifier": Qualifiers.INSTITUTION.value},
-                {"name.name.qualifier": True, "name.name.label": True}
-            )
-            # this collection may still contain embedded documents with the
-            # "group" qualifier, so filter those out
-            names = [
-                name["name"]["label"] for res in results for name in res["name"] if name["name"]["qualifier"] == Qualifiers.INSTITUTION.value
-            ]
+                # Second pass: get all names containing an "institution qualifier"
+                docs_with_institution = self._ref_col.find(
+                    {"name.name.qualifier": Qualifiers.INSTITUTION.value},
+                    {"name.name.qualifier": True, "name.name.label": True}
+                )
+                # this collection may still contain embedded documents with the
+                # "group" qualifier, so filter those out
+                institutions = [
+                    name["name"]["label"] for res in docs_with_institution for name in res["name"] if name["name"]["qualifier"] == Qualifiers.INSTITUTION.value
+                ]
 
-            out.extend([n.strip() for n in names if n.strip()])
+                out.extend([n.strip() for n in institutions if n.strip()])
 
-            return sorted(set(out))
-        elif self._dev_list == 'groups':
-            names = self._ref_col.find(
-                {"name.name.qualifier": Qualifiers.GROUP.value},
-                {"name.name.qualifier": True, "name.name.label": True}
-            )
-            # this collection may still contain embedded documents with the
-            # "institution" or "person" qualifier, so filter those out
-            names = set([
-                name["name"]["label"] for res in names for name in res["name"] if name["name"]["qualifier"] == Qualifiers.GROUP.value
-            ])
+                return sorted(set(out))
+            case 'groups':
+                docs_with_group = self._ref_col.find(
+                    {"name.name.qualifier": Qualifiers.GROUP.value},
+                    {"name.name.qualifier": True, "name.name.label": True}
+                )
+                # this collection may still contain embedded documents with the
+                # "institution" or "person" qualifier, so filter those out
+                groups_uniq = set([
+                    name["name"]["label"] for res in docs_with_group for name in res["name"] if name["name"]["qualifier"] == Qualifiers.GROUP.value
+                ])
 
-            return sorted([n.strip() for n in names if n.strip()])
-        else:
-            return []
+                return sorted([n.strip() for n in groups_uniq if n.strip()])
+            case _:
+                return []
 
     # Function to see to missing values
     def check_missing(self):
@@ -164,9 +165,9 @@ class ValueList(object):
             self._printer.good("Successfully Synchronised!")
             return True
 
-        result = self._update_col.insert_many(insert)
+        insert_all_result = self._update_col.insert_many(insert)
 
-        if len(result.inserted_ids) != len(insert):
+        if len(insert_all_result.inserted_ids) != len(insert):
             self._printer.fail("Not all requested documents were inserted!")
             return False
 

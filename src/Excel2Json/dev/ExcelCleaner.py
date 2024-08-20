@@ -40,12 +40,19 @@ class MDES_CleanUp(object):
         self.fields = pd.DataFrame(fields_collection['tabs'])
 
         self.sheet_path = sheet_path
-        self.get_sec_level = lambda x: re.search(r'(?<=\[).*?(?=\])', x)[0]
-        self.resource_clean = lambda x: x.split(' (')[0]
 
     @property
     def dictionaries_collection(self) -> MongoCollection:
         return self.client.dev['dictionaries']
+
+    def _get_sec_level(self, x) -> str | None:
+        match = re.search(r'(?<=\[).*?(?=\])', x)
+        if match:
+            return match[0]
+        return None
+
+    def _resource_clean(self, x) -> str:
+        return x.split(' (')[0]
 
     def Sheet_CleanUp(self, tab) -> pd.DataFrame:
         data = pd.read_excel(self.sheet_path, sheet_name=tab, header=None)
@@ -66,8 +73,8 @@ class MDES_CleanUp(object):
         # Adding additional Columns & recoding
         base['collection'] = base['collection'].replace('No', False).replace('Yes', True)
         base['title_type_main'] = np.repeat('main', len(base))
-        base['security_level'] = base['security_level'].copy().apply(self.get_sec_level)
-        base['resource_type'] = base['resource_type'].copy().apply(self.resource_clean)
+        base['security_level'] = base['security_level'].copy().apply(self._get_sec_level)
+        base['resource_type'] = base['resource_type'].copy().apply(self._resource_clean)
         return base
     
 ###############################################################################

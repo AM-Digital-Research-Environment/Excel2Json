@@ -1,14 +1,15 @@
-from datetime import datetime
 import enum
+from datetime import datetime
 from os import EX_IOERR
 from pathlib import Path
+from typing import Any
 
+import pymongo
 import typer
-from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+from rich.progress import track
 from typing_extensions import Annotated
 from wasabi import msg
-from rich.progress import track
 
 from .Excel2Json import ExportJson
 from .ValueSync import ValueList
@@ -69,7 +70,7 @@ def insert(
     db_name = parts[0]
     col_name = parts[1]
 
-    client = MongoClient(connection)
+    client: pymongo.MongoClient[dict[str, Any]] = pymongo.MongoClient(connection)
 
     try:
         # The ping command is cheap and does not require auth.
@@ -161,7 +162,7 @@ def sync(
     db_name = parts[0]
     col_name = parts[1]
 
-    client = MongoClient(connection)
+    client: pymongo.MongoClient[dict[str, Any]] = pymongo.MongoClient(connection)
 
     try:
         # The ping command is cheap and does not require auth.
