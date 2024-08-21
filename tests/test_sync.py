@@ -815,3 +815,60 @@ class TestAffiliationMerge(object):
         assert dev_collection[1]["affiliation"] == [
             "Giga Group",
         ]
+
+class TestInstitutionSync(object):
+    def test_institutions_merge(self):
+        client = mongomock.MongoClient()
+        institutionCollection = client.dev.institutions
+        institutions = [
+            {"name": 'University of Lagos African Cluster Centre (LACC) [institution]'}
+        ]
+        for obj in institutions:
+            obj["_id"] = institutionCollection.insert_one(obj).inserted_id
+
+        collection = client.testDatabase.testProject
+        objects = [
+            {
+                "name": [
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ['Department of Arts and Social Science Education, University of Lagos [institution]'],
+                        "role": "Tester"
+                    },
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ['Department of Urban and Regional Planning, University of Lagos [institution]'],
+                        "role": "Tester"
+                    },
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ['Rethinking Cities [institution]'],
+                        "role": "Tester"
+                    },
+                    {
+                        "name": {"label": "Doe, Jane", "qualifier": "person"},
+                        "affl": ['University of Lagos African Cluster Centre (LACC) [institution]'],
+                        "role": "Tester"
+                    }
+                ]
+            }
+        ]
+
+        for obj in objects:
+            obj["_id"] = collection.insert_one(obj).inserted_id
+
+        syncer = ValueSync.ValueList(
+            None, "testDatabase", "testProject", "institutions", client
+        )
+
+        sync_result = syncer.synchronise()
+
+        assert sync_result
+
+        dev_collection = list(client.dev.institutions.find())
+        assert len(dev_collection) == 4
+
+        # assert dev_collection[0]["name"] == "Doe, Jane"
+        # assert sorted(dev_collection[0]["affiliation"]) == [
+        #     "ACME Corp.",
+        # ]
