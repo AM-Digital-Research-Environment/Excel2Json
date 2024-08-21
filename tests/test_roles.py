@@ -90,6 +90,86 @@ def test_roles_are_transformed_to_the_correct_schema():
                 "role": "Researcher",
             },
         },
+        {
+            "desc": "Name with qualifier with leading spaces",
+            "in": {
+                "name": "First Anchor Books  [institution]",
+                "affl": np.nan,
+                "role": "Researcher",
+            },
+            "out": {
+                "name": {
+                    "label": "First Anchor Books",
+                    "qualifier": "institution",
+                },
+                "affl": [],
+                "role": "Researcher",
+            },
+        },
+        {
+            "desc": "Name with qualifier with trailing spaces",
+            "in": {
+                "name": "First Anchor Books [institution] ",
+                "affl": np.nan,
+                "role": "Researcher",
+            },
+            "out": {
+                "name": {
+                    "label": "First Anchor Books",
+                    "qualifier": "institution",
+                },
+                "affl": [],
+                "role": "Researcher",
+            },
+        },
+        {
+            "desc": "Affiliation with institution qualifier, qualifier is stripped",
+            "in": {
+                "name": "Doe, Jane",
+                "affl": "ACME Corp.  [institution] ",
+                "role": "Researcher",
+            },
+            "out": {
+                "name": {
+                    "label": "Doe, Jane",
+                    "qualifier": "person",
+                },
+                "affl": ["ACME Corp."],
+                "role": "Researcher",
+            },
+        },
+        {
+            "desc": "Affiliation with person qualifier, qualifier is stripped",
+            "in": {
+                "name": "Doe, Jane",
+                "affl": "Foo Bar  [person]  ",
+                "role": "Researcher",
+            },
+            "out": {
+                "name": {
+                    "label": "Doe, Jane",
+                    "qualifier": "person",
+                },
+                "affl": ["Foo Bar"],
+                "role": "Researcher",
+            },
+        },
+        {
+            "desc": "Affiliation with group qualifier, qualifier is stripped",
+            "in": {
+                "name": "Doe, Jane",
+                "affl": "Giga Group  [group]  ",
+                "role": "Researcher",
+            },
+            "out": {
+                "name": {
+                    "label": "Doe, Jane",
+                    "qualifier": "person",
+                },
+                "affl": ["Giga Group"],
+                "role": "Researcher",
+            },
+        },
     ]
 
     for case in cases:

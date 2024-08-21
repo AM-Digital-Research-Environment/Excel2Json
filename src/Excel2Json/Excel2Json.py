@@ -387,5 +387,6 @@ class ExportJson(object):
             return role
 
         role["affl"] = [a.strip() for a in data["affl"].split(";") if a.split()]
+        role["affl"] = [cls.qualifiers_pattern.sub(r"\g<name>", item) for item in role["affl"]]
 
         return role
