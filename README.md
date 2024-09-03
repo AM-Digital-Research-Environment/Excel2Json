@@ -4,7 +4,7 @@ Repo for the metadata excel table clean-up and parsing script
 ## Description
 
 ### Authentication information for the MongoDB Client
-For authentication information (MongoDB Client bot URI) in the mongo_auth.json file, please enquire us.
+For authentication information (MongoDB Client bot URI) in the mongo_auth.json file, please fill in or enquire us.
 
 
 ### The following .py files serve the following functions:
