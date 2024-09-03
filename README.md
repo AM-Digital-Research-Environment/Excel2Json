@@ -166,6 +166,9 @@ The schema for `subject` is documented below in [subject](#subject)
 
 An incomplete schema for documents inside MongoDB.
 
+## Authentication information for the MongoDB Client
+For authentication information (MongoDB Client bot URI) in the mongo_auth.json file, please enquire us.
+
 ## Dev-dictionaries
 
 ### `persons`
