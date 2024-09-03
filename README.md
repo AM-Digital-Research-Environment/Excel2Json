@@ -2,7 +2,12 @@
 Repo for the metadata excel table clean-up and parsing script
 
 ## Description
-The following .py files serve the following functions:
+
+### Authentication information for the MongoDB Client
+For authentication information (MongoDB Client bot URI) in the mongo_auth.json file, please enquire us.
+
+
+### The following .py files serve the following functions:
 
 - **Excel2Json.py**  
 This document contains the ExportJson class which can be used to convert a DRE standard metadata Excel sheet to a JSON list. The example shows how to perform document export:
