@@ -159,7 +159,7 @@ class ExportJson:
             use = {}
             user = row.filter(like='user')
             use['type'] = user.user_rights
-            use['***REMOVED***s'] = self.list_cleanup(user.users, 'All')
+            use['admins'] = self.list_cleanup(user.users, 'All')
             
             data_dict['accessCondition'] = {'rights': rights, 'usage': use}
             
