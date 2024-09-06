@@ -74,7 +74,7 @@ def insert(
 
     try:
         # The ping command is cheap and does not require auth.
-        client.***REMOVED***.command("ping")
+        client.admin.command("ping")
     except ConnectionFailure:
         msg.fail("Server not available")
         raise typer.Abort()
