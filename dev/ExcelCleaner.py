@@ -56,5 +56,5 @@ class MDES_CleanUp:
         return contents    
     
     def mongo_dictCollection_auth(self):
-        client = MongoClient(self.extract_json_data(r"dictionaries\mongo_auth.json")['botConnectionString'])
+        client = MongoClient(self.extract_json_data(r"dictionaries\mongo_auth.json")['mongo_uri'])
         return client.dev['dictionaries']
