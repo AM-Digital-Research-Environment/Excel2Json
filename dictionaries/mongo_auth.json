@@ -1,1 +1,1 @@
-{"botConnectionString" : "your_mongodb_client_bot_uri_here"}
+{"mongo_uri" : "your_mongodb_client_bot_uri_here"}
