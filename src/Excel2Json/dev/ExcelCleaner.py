@@ -115,7 +115,7 @@ class MDES_CleanUp(object):
         FileNotFoundError
             If the JSON-file with the connection string does not exist.
         KeyError
-            If the 'botConnectionString' is not found in the loaded dictionary.
+            If the 'mongo_uri' is not found in the loaded dictionary.
         pymongo.errors.ConnectionFailure
             If the connection to MongoDB fails.
 
@@ -133,6 +133,6 @@ class MDES_CleanUp(object):
 
         return MongoClient(
             self.extract_json_data(os.path.join("dictionaries", "mongo_auth.json"))[
-                "botConnectionString"
+                "mongo_uri"
             ]
         )
