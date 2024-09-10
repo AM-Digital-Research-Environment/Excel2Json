@@ -1,3 +1,97 @@
-pandas>=2.2.2
-numpy>=1.26.4
-pymongo>=4.7.3
+autopep8==2.3.1
+black==24.8.0
+certifi==2024.7.4
+    # via requests
+charset-normalizer==3.3.2
+    # via requests
+click==8.1.7
+    # via black
+    # via typer
+coverage==7.6.1
+dnspython==2.6.1
+    # via pymongo
+et-xmlfile==1.1.0
+    # via openpyxl
+flake8==7.1.1
+idna==3.7
+    # via requests
+iniconfig==2.0.0
+    # via pytest
+isort==5.13.2
+markdown-it-py==3.0.0
+    # via rich
+mccabe==0.7.0
+    # via flake8
+mdurl==0.1.2
+    # via markdown-it-py
+mongomock @ git+https://github.com/mongomock/mongomock.git@67b6fa8b3535d8a764efa45e4f29f8a328fd9cdd
+mypy==1.11.1
+mypy-extensions==1.0.0
+    # via black
+    # via mypy
+numpy==2.0.1
+    # via excel2json
+    # via pandas
+    # via pandas-stubs
+openpyxl==3.1.5
+    # via excel2json
+packaging==24.1
+    # via black
+    # via mongomock
+    # via pytest
+pandas==2.2.2
+    # via excel2json
+pandas-stubs==2.2.2.240807
+pathspec==0.12.1
+    # via black
+platformdirs==4.2.2
+    # via black
+pluggy==1.5.0
+    # via pytest
+pycodestyle==2.12.0
+    # via autopep8
+    # via flake8
+pyflakes==3.2.0
+    # via flake8
+pygments==2.18.0
+    # via rich
+pymongo==4.8.0
+    # via excel2json
+pytest==8.3.2
+    # via pytest-schema
+    # via pytest-testdox
+pytest-schema==0.1.2
+pytest-testdox==3.1.0
+python-dateutil==2.9.0.post0
+    # via pandas
+pytz==2024.1
+    # via mongomock
+    # via pandas
+requests==2.32.3
+    # via excel2json
+rich==13.7.1
+    # via typer
+schema==0.7.7
+    # via pytest-schema
+sentinels==1.0.0
+    # via mongomock
+shellingham==1.5.4
+    # via typer
+six==1.16.0
+    # via python-dateutil
+typer==0.12.3
+    # via excel2json
+types-pytz==2024.1.0.20240417
+    # via pandas-stubs
+types-requests==2.32.0.20240712
+typing-extensions==4.12.2
+    # via excel2json
+    # via mypy
+    # via typer
+tzdata==2024.1
+    # via pandas
+urllib3==2.2.2
+    # via requests
+    # via types-requests
+wasabi==1.1.3
+    # via excel2json
