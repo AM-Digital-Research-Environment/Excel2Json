@@ -24,7 +24,7 @@ Your tooling may differ, in which case you should consult the respective docs on
 $ cd my-project
 $ python -m venv .venv
 $ source .venv/bin/activate
-$ pip install git+ssh://git@github.com/AM-Digital-Research-Environment/Excel2Json.git@Version2.0
+$ pip install git+ssh://git@github.com/AM-Digital-Research-Environment/Excel2Json.git
 $ # building...
 $ python -m Excel2Json --help
                                                                                                                                                                                                                    
