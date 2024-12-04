@@ -183,11 +183,13 @@ class ExportJson(object):
 
                 origin = row.filter(like="loc_")
                 origin.index = [col.replace("loc_origin_", "") for col in origin.index]
+                
                 for f in origin.index:
                     try:
                         origin[f] = list(
                             map(
-                                lambda x: x.replace("99", ""),
+                                # Added replace("_", " ") for country like Ivory Coast
+                                lambda x: x.replace("99", "").replace("_", " "),
                                 self.list_cleanup(origin[f], []),
                             )
                         )
@@ -214,7 +216,7 @@ class ExportJson(object):
 
                 # Current Location
 
-                current_loc = self.list_cleanup(row["current_location"], [])
+                current_loc = [loc.replace("_", " ") for loc in self.list_cleanup(row["current_location"], [])]
 
                 data_dict["location"] = {"origin": origin_list, "current": current_loc}
 
