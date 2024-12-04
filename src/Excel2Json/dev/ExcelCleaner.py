@@ -66,7 +66,7 @@ class MDES_CleanUp(object):
         data = data.iloc[idx_eq_one:, :].reset_index(drop=True)
         if tab == "2. AssociatedPerson":
             fields_names = ["slno", "filename"]
-            ap_count = int(len(data.columns)/3)
+            ap_count = int((len(data.columns)-2)/3)
             for i in range(1, ap_count+1):
                 fields_names.extend([f"role_{i}", f"role_{i}", f"role_{i}"])
             data.columns = fields_names
