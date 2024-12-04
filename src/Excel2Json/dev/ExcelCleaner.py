@@ -64,7 +64,14 @@ class MDES_CleanUp(object):
         data = pd.read_excel(self.sheet_path, sheet_name=tab, header=None)
         idx_eq_one = data.loc[data.iloc[:, 0] == 1].index[0]
         data = data.iloc[idx_eq_one:, :].reset_index(drop=True)
-        data.columns = self.fields[tab].dropna().values
+        if tab == "2. AssociatedPerson":
+            fields_names = ["slno", "filename"]
+            ap_count = int(len(data.columns)/3)
+            for i in range(1, ap_count+1):
+                fields_names.extend([f"role_{i}", f"role_{i}", f"role_{i}"])
+            data.columns = fields_names
+        else:
+            data.columns = self.fields[tab].dropna().values
         data = data.drop(columns="slno")
         data = data.dropna(subset="filename")
         return data
