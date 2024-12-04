@@ -68,7 +68,7 @@ class MDES_CleanUp(object):
             fields_names = ["slno", "filename"]
             ap_count = int((len(data.columns)-2)/3)
             for i in range(1, ap_count+1):
-                fields_names.extend([f"role_{i}", f"role_{i}", f"role_{i}"])
+                fields_names.extend([f"role_{i}", f"name_{i}", f"affl_{i}"])
             data.columns = fields_names
         else:
             data.columns = self.fields[tab].dropna().values
