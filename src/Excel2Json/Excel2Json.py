@@ -280,6 +280,12 @@ class ExportJson(object):
                 # Tags
                 data_dict["tags"] = self.list_cleanup(row["tags"], [])
 
+                # Preview Image
+                try:
+                    data_dict["previewImage"] = [row["previewImage"]]
+                except KeyError:
+                    continue
+
                 # Append to dictionary list
                 json_list.append(data_dict)
 
