@@ -183,35 +183,36 @@ class ExportJson(object):
 
                 origin = row.filter(like="loc_")
                 origin.index = [col.replace("loc_origin_", "") for col in origin.index]
-                
-                for f in origin.index:
+                origin = origin.to_dict()
+
+                for f in origin:
                     try:
                         origin[f] = list(
                             map(
-                                # Added replace("_", " ") for country like Ivory Coast
                                 lambda x: x.replace("99", "").replace("_", " "),
                                 self.list_cleanup(origin[f], []),
                             )
                         )
                     except TypeError:
                         pass
-                if range(len(origin["l1"])) == 1:
-                    origin_list = [origin.to_dict()]
+
+                if len(origin["l1"]) == 1:
+                    origin_list = [origin]
                 else:
                     for n in range(len(origin["l1"])):
                         origin_dict = {
-                            "l1": origin["l1"][n],  # country
+                            "l1": origin["l1"][n],
                             "l2": (
                                 origin["l2"][n]
                                 if len(origin["l2"]) >= n + 1 and origin["l2"][n] != ""
                                 else np.nan
-                            ),  # region
+                            ),
                             "l3": (
                                 origin["l3"][n]
                                 if len(origin["l3"]) >= n + 1 and origin["l3"][n] != ""
                                 else np.nan
                             ),
-                        }  # subregion
+                        }
                         origin_list.append(origin_dict)
 
                 # Current Location
